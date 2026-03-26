@@ -1,0 +1,40 @@
+{
+  "name": "webstudio-root",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "apps/*",
+    "fixtures/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present --include-workspace-root=false",
+    "dts": "npm run dts --workspaces --if-present --include-workspace-root=false",
+    "dev": "npm run dev -w @webstudio-is/builder",
+    "lint": "eslint \"**/*.{ts,tsx}\" --max-warnings 0",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "storybook:dev": "storybook dev -p 6006",
+    "storybook:build": "storybook build",
+    "migrations": "npm run generate -w @webstudio-is/prisma-client && npm run migrations -w @webstudio-is/prisma-client -- migrate --dev --cwd ../../apps/builder",
+    "build-figma-tokens": "npm run build-figma-tokens -w @webstudio-is/design-system",
+    "postinstall": "patch-package"
+  },
+  "engines": {
+    "node": "22"
+  },
+  "dependencies": {
+    "cross-env": "^7.0.3",
+    "patch-package": "^8.0.0"
+  },
+  "overrides": {
+    "@types/react": "^18.2.70",
+    "@types/react-dom": "^18.2.25",
+    "react": "18.3.0-canary-14898b6a9-20240318",
+    "react-dom": "18.3.0-canary-14898b6a9-20240318"
+  },
+  "devDependencies": {
+    "@prisma/client": "^5.12.1",
+    "prisma": "^5.12.1"
+  }
+}
