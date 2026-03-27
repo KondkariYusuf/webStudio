@@ -39,7 +39,7 @@ process.env.DATABASE_URL = normalizedDatabaseUrl;
 process.env.DIRECT_URL = normalizedDatabaseUrl;
 
 const { PrismaClient } = await import(
-  "../../../packages/prisma-client/src/__generated__/index.js"
+  "../../../../Backend/packages/prisma-client/src/__generated__/index.js"
 );
 
 const prisma = new PrismaClient();

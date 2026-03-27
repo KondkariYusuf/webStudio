@@ -18,7 +18,7 @@ test("parseBuilderUrl localhost", async () => {
   ).toMatchInlineSnapshot(`
     {
       "projectId": "090e6e14-ae50-4b2e-bd22-71733cec05bb",
-      "sourceOrigin": "https://localhost",
+      "sourceOrigin": "http://localhost",
     }
   `);
 });

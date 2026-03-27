@@ -8,9 +8,15 @@ const rootDir = ["..", "../..", "../../.."]
   .find((dir) => existsSync(path.join(dir, ".git")));
 
 const hasPrivateFolders =
-  fg.sync([path.join(rootDir ?? "", "packages/*/private-src/*")], {
+  fg.sync(
+    [
+      path.join(rootDir ?? "", "Backend/packages/*/private-src/*"),
+      path.join(rootDir ?? "", "packages/*/private-src/*"),
+    ],
+    {
     ignore: ["**/node_modules/**"],
-  }).length > 0;
+    }
+  ).length > 0;
 
 const conditions = hasPrivateFolders
   ? ["webstudio-private", "webstudio"]

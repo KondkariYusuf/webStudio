@@ -13,17 +13,20 @@ const isFolderEmpty = (folderPath: string) => {
 };
 
 const hasPrivateFolders = !isFolderEmpty(
-  path.join(__dirname, "../../packages/sdk-components-animation/private-src")
+  path.join(
+    __dirname,
+    "../../Backend/packages/sdk-components-animation/private-src"
+  )
 );
 
 const visualTestingStories: StorybookConfig["stories"] = [
   {
-    directory: "../apps/builder",
+    directory: "../Frontend/apps/builder",
     titlePrefix: "Builder",
     files: "**/*.stories.tsx",
   },
   {
-    directory: "../packages/design-system/src/components",
+    directory: "../Backend/packages/design-system/src/components",
     titlePrefix: "Design system",
     files: "**/*.stories.tsx",
   },
@@ -35,32 +38,32 @@ export default {
     : [
         ...visualTestingStories,
         {
-          directory: "../packages/css-engine/src",
+          directory: "../Backend/packages/css-engine/src",
           titlePrefix: "CSS engine",
           files: "**/*.stories.tsx",
         },
         {
-          directory: "../packages/image/src",
+          directory: "../Backend/packages/image/src",
           titlePrefix: "Image",
           files: "**/*.stories.tsx",
         },
         {
-          directory: "../packages/icons",
+          directory: "../Backend/packages/icons",
           titlePrefix: "Icons",
           files: "**/*.stories.tsx",
         },
         {
-          directory: "../packages/sdk-components-react",
+          directory: "../Backend/packages/sdk-components-react",
           titlePrefix: "SDK components React",
           files: "**/*.stories.tsx",
         },
         {
-          directory: "../packages/sdk-components-react-radix",
+          directory: "../Backend/packages/sdk-components-react-radix",
           titlePrefix: "SDK components React Radix",
           files: "**/*.stories.tsx",
         },
         {
-          directory: "../packages/sdk-components-animation",
+          directory: "../Backend/packages/sdk-components-animation",
           titlePrefix: "SDK components animation",
           files: "**/*.stories.tsx",
         },
@@ -97,7 +100,7 @@ export default {
         alias: [
           {
             find: "~",
-            replacement: path.resolve("./apps/builder/app"),
+            replacement: path.resolve("./Frontend/apps/builder/app"),
           },
         ],
       },

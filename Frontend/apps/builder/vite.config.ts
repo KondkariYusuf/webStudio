@@ -12,13 +12,22 @@ const rootDir = ["..", "../..", "../../.."]
   .find((dir) => existsSync(path.join(dir, ".git")));
 
 const hasPrivateFolders =
-  fg.sync([path.join(rootDir ?? "", "packages/*/private-src/*")], {
+  fg.sync(
+    [
+      path.join(rootDir ?? "", "Backend/packages/*/private-src/*"),
+      path.join(rootDir ?? "", "packages/*/private-src/*"),
+    ],
+    {
     ignore: ["**/node_modules/**"],
-  }).length > 0;
+    }
+  ).length > 0;
 
 const conditions = hasPrivateFolders
   ? ["webstudio-private", "webstudio"]
   : ["webstudio"];
+
+const isLocalhostLike = (hostname: string) =>
+  hostname === "localhost" || hostname.endsWith(".localhost");
 
 const parseBuilderUrl = (urlStr: string) => {
   const url = new URL(urlStr);
@@ -40,8 +49,8 @@ const parseBuilderUrl = (urlStr: string) => {
   );
 
   const sourceUrl = new URL(url.origin);
-  sourceUrl.protocol = "https";
   sourceUrl.host = fragments.filter(Boolean).join(".");
+  sourceUrl.protocol = isLocalhostLike(sourceUrl.hostname) ? "http:" : "https:";
 
   return {
     projectId: match.groups.uuid,

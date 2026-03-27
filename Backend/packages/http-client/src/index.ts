@@ -120,6 +120,9 @@ export const loadProjectDataByProjectId = async (params: {
 // For easier detecting the builder URL
 const buildProjectDomainPrefix = "p-";
 
+const isLocalhostLike = (hostname: string) =>
+  hostname === "localhost" || hostname.endsWith(".localhost");
+
 export const parseBuilderUrl = (urlStr: string) => {
   const url = new URL(urlStr);
 
@@ -151,8 +154,8 @@ export const parseBuilderUrl = (urlStr: string) => {
   fragments[0] = fragments[0].replace(re, branch ?? "");
 
   const sourceUrl = new URL(url.origin);
-  sourceUrl.protocol = "https";
   sourceUrl.host = fragments.filter(Boolean).join(".");
+  sourceUrl.protocol = isLocalhostLike(sourceUrl.hostname) ? "http:" : "https:";
 
   return {
     projectId,

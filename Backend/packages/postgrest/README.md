@@ -14,7 +14,7 @@ or in case of non devcontainer environment
 
 ```bash
 docker compose exec -iT app bash
-cd /workspaces/webstudio/packages/postgrest
+cd /workspaces/webstudio/Backend/packages/postgrest
 pnpm generate-types
 ```
 
@@ -23,7 +23,7 @@ pnpm generate-types
 ```bash
 pnpm playground ./playground/{file}.ts
 # OR
-pnpm tsx --env-file ../../apps/builder/.env ./playground/{file}.ts
+pnpm tsx --env-file ../../../Frontend/apps/builder/.env ./playground/{file}.ts
 ```
 
 ## Next steps.
