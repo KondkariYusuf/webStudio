@@ -59,6 +59,7 @@ model Asset {
 model User {
   id               String             @id @default(uuid())
   email            String?            @unique
+  passwordHash     String?
   provider         String?
   image            String?
   username         String?

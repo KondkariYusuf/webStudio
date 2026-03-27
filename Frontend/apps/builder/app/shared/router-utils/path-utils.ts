@@ -105,6 +105,12 @@ export const loginPath = (params: {
   returnTo?: string;
 }) => `/login${searchParams(params)}`;
 
+export const registerPath = (params: {
+  error?: (typeof AUTH_PROVIDERS)[keyof typeof AUTH_PROVIDERS];
+  message?: string;
+  returnTo?: string;
+}) => `/register${searchParams(params)}`;
+
 export const logoutPath = () => "/logout";
 export const restLogoutPath = () => "/dashboard-logout";
 
@@ -127,7 +133,12 @@ export const authCallbackPath = ({
 export const authPath = ({
   provider,
 }: {
-  provider: "google" | "github" | "dev";
+  provider:
+    | "google"
+    | "github"
+    | "dev"
+    | "password-login"
+    | "password-register";
 }) => `/auth/${provider}`;
 
 export const restAssetsPath = () => {

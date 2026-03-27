@@ -1,0 +1,556 @@
+{
+  "buildManifest": {
+    "serverBundles": {
+      "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0": {
+        "id": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
+        "file": "build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/index.js",
+        "config": {
+          "runtime": "nodejs"
+        }
+      }
+    },
+    "routeIdToServerBundleId": {
+      "root": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/rest.buildId.$projectId": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/_ui.dashboard.templates": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/auth.github_.callback": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/auth.google_.callback": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/rest.resources-loader": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/rest.data.$projectId": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/_ui.dashboard.search": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/_ui.dashboard._index": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/rest.build.$buildId": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/oauth.ws.authorize": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/rest.assets_.$name": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/auth.ws_.callback": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/dashboard-logout": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/_ui.login._index": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/cgi.empty[.]gif": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/builder-logout": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/oauth.ws.token": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/_canvas.canvas": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/_ui.(builder)": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/auth.github": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/auth.google": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/cgi.asset.$": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/cgi.image.$": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/cgi.video.$": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/rest.assets": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/rest.patch": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/_ui.logout": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/_ui.error": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/auth.dev": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/auth.ws": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/trpc.$": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/n8n.$": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/_ui.$": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0"
+    },
+    "routes": {
+      "root": {
+        "path": "",
+        "id": "root",
+        "file": "app/root.tsx",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/rest.buildId.$projectId": {
+        "file": "app/routes/rest.buildId.$projectId.tsx",
+        "id": "routes/rest.buildId.$projectId",
+        "path": "rest/buildId/:projectId",
+        "parentId": "root",
+        "config": {}
+      },
+      "routes/_ui.dashboard.templates": {
+        "file": "app/routes/_ui.dashboard.templates.tsx",
+        "id": "routes/_ui.dashboard.templates",
+        "path": "templates",
+        "parentId": "routes/_ui.dashboard",
+        "config": {}
+      },
+      "routes/auth.github_.callback": {
+        "file": "app/routes/auth.github_.callback.tsx",
+        "id": "routes/auth.github_.callback",
+        "path": "auth/github/callback",
+        "parentId": "root",
+        "config": {}
+      },
+      "routes/auth.google_.callback": {
+        "file": "app/routes/auth.google_.callback.tsx",
+        "id": "routes/auth.google_.callback",
+        "path": "auth/google/callback",
+        "parentId": "root",
+        "config": {}
+      },
+      "routes/rest.resources-loader": {
+        "file": "app/routes/rest.resources-loader.ts",
+        "id": "routes/rest.resources-loader",
+        "path": "rest/resources-loader",
+        "parentId": "root",
+        "config": {}
+      },
+      "routes/rest.data.$projectId": {
+        "file": "app/routes/rest.data.$projectId.ts",
+        "id": "routes/rest.data.$projectId",
+        "path": "rest/data/:projectId",
+        "parentId": "root",
+        "config": {}
+      },
+      "routes/_ui.dashboard.search": {
+        "file": "app/routes/_ui.dashboard.search.tsx",
+        "id": "routes/_ui.dashboard.search",
+        "path": "search",
+        "parentId": "routes/_ui.dashboard",
+        "config": {}
+      },
+      "routes/_ui.dashboard._index": {
+        "file": "app/routes/_ui.dashboard._index.tsx",
+        "id": "routes/_ui.dashboard._index",
+        "index": true,
+        "parentId": "routes/_ui.dashboard",
+        "config": {}
+      },
+      "routes/rest.build.$buildId": {
+        "file": "app/routes/rest.build.$buildId.tsx",
+        "id": "routes/rest.build.$buildId",
+        "path": "rest/build/:buildId",
+        "parentId": "root",
+        "config": {}
+      },
+      "routes/oauth.ws.authorize": {
+        "file": "app/routes/oauth.ws.authorize.tsx",
+        "id": "routes/oauth.ws.authorize",
+        "path": "oauth/ws/authorize",
+        "parentId": "root",
+        "config": {}
+      },
+      "routes/rest.assets_.$name": {
+        "file": "app/routes/rest.assets_.$name.tsx",
+        "id": "routes/rest.assets_.$name",
+        "path": "rest/assets/:name",
+        "parentId": "root",
+        "config": {}
+      },
+      "routes/auth.ws_.callback": {
+        "file": "app/routes/auth.ws_.callback.ts",
+        "id": "routes/auth.ws_.callback",
+        "path": "auth/ws/callback",
+        "parentId": "root",
+        "config": {}
+      },
+      "routes/dashboard-logout": {
+        "file": "app/routes/dashboard-logout.ts",
+        "id": "routes/dashboard-logout",
+        "path": "dashboard-logout",
+        "parentId": "root",
+        "config": {}
+      },
+      "routes/_ui.login._index": {
+        "file": "app/routes/_ui.login._index.tsx",
+        "id": "routes/_ui.login._index",
+        "path": "login",
+        "index": true,
+        "parentId": "routes/_ui",
+        "config": {}
+      },
+      "routes/cgi.empty[.]gif": {
+        "file": "app/routes/cgi.empty[.]gif.ts",
+        "id": "routes/cgi.empty[.]gif",
+        "path": "cgi/empty.gif",
+        "parentId": "root",
+        "config": {}
+      },
+      "routes/builder-logout": {
+        "file": "app/routes/builder-logout.ts",
+        "id": "routes/builder-logout",
+        "path": "builder-logout",
+        "parentId": "root",
+        "config": {}
+      },
+      "routes/oauth.ws.token": {
+        "file": "app/routes/oauth.ws.token.ts",
+        "id": "routes/oauth.ws.token",
+        "path": "oauth/ws/token",
+        "parentId": "root",
+        "config": {}
+      },
+      "routes/_canvas.canvas": {
+        "file": "app/routes/_canvas.canvas.tsx",
+        "id": "routes/_canvas.canvas",
+        "path": "canvas",
+        "parentId": "routes/_canvas",
+        "config": {}
+      },
+      "routes/_ui.(builder)": {
+        "file": "app/routes/_ui.(builder).tsx",
+        "id": "routes/_ui.(builder)",
+        "path": "builder?",
+        "parentId": "routes/_ui",
+        "config": {}
+      },
+      "routes/_ui.dashboard": {
+        "file": "app/routes/_ui.dashboard.tsx",
+        "id": "routes/_ui.dashboard",
+        "path": "dashboard",
+        "parentId": "routes/_ui",
+        "config": {}
+      },
+      "routes/auth.github": {
+        "file": "app/routes/auth.github.tsx",
+        "id": "routes/auth.github",
+        "path": "auth/github",
+        "parentId": "root",
+        "config": {}
+      },
+      "routes/auth.google": {
+        "file": "app/routes/auth.google.tsx",
+        "id": "routes/auth.google",
+        "path": "auth/google",
+        "parentId": "root",
+        "config": {}
+      },
+      "routes/cgi.asset.$": {
+        "file": "app/routes/cgi.asset.$.ts",
+        "id": "routes/cgi.asset.$",
+        "path": "cgi/asset/*",
+        "parentId": "root",
+        "config": {}
+      },
+      "routes/cgi.image.$": {
+        "file": "app/routes/cgi.image.$.ts",
+        "id": "routes/cgi.image.$",
+        "path": "cgi/image/*",
+        "parentId": "root",
+        "config": {}
+      },
+      "routes/cgi.video.$": {
+        "file": "app/routes/cgi.video.$.ts",
+        "id": "routes/cgi.video.$",
+        "path": "cgi/video/*",
+        "parentId": "root",
+        "config": {}
+      },
+      "routes/rest.assets": {
+        "file": "app/routes/rest.assets.tsx",
+        "id": "routes/rest.assets",
+        "path": "rest/assets",
+        "parentId": "root",
+        "config": {}
+      },
+      "routes/rest.patch": {
+        "file": "app/routes/rest.patch.ts",
+        "id": "routes/rest.patch",
+        "path": "rest/patch",
+        "parentId": "root",
+        "config": {}
+      },
+      "routes/_ui.logout": {
+        "file": "app/routes/_ui.logout.tsx",
+        "id": "routes/_ui.logout",
+        "path": "logout",
+        "parentId": "routes/_ui",
+        "config": {}
+      },
+      "routes/_ui.error": {
+        "file": "app/routes/_ui.error.tsx",
+        "id": "routes/_ui.error",
+        "path": "error",
+        "parentId": "routes/_ui",
+        "config": {}
+      },
+      "routes/auth.dev": {
+        "file": "app/routes/auth.dev.tsx",
+        "id": "routes/auth.dev",
+        "path": "auth/dev",
+        "parentId": "root",
+        "config": {}
+      },
+      "routes/auth.ws": {
+        "file": "app/routes/auth.ws.ts",
+        "id": "routes/auth.ws",
+        "path": "auth/ws",
+        "parentId": "root",
+        "config": {}
+      },
+      "routes/_canvas": {
+        "file": "app/routes/_canvas.tsx",
+        "id": "routes/_canvas",
+        "parentId": "root",
+        "config": {}
+      },
+      "routes/trpc.$": {
+        "file": "app/routes/trpc.$.ts",
+        "id": "routes/trpc.$",
+        "path": "trpc/*",
+        "parentId": "root",
+        "config": {}
+      },
+      "routes/n8n.$": {
+        "file": "app/routes/n8n.$.tsx",
+        "id": "routes/n8n.$",
+        "path": "n8n/*",
+        "parentId": "root",
+        "config": {}
+      },
+      "routes/_ui.$": {
+        "file": "app/routes/_ui.$.tsx",
+        "id": "routes/_ui.$",
+        "path": "*",
+        "parentId": "routes/_ui",
+        "config": {}
+      },
+      "routes/_ui": {
+        "file": "app/routes/_ui.tsx",
+        "id": "routes/_ui",
+        "parentId": "root",
+        "config": {}
+      }
+    }
+  },
+  "remixConfig": {
+    "appDirectory": "C:\\Users\\kondk\\OneDrive\\Desktop\\Projects\\BZTech\\webStudio\\webstudio\\Frontend\\apps\\builder\\app",
+    "basename": "/",
+    "buildDirectory": "C:\\Users\\kondk\\OneDrive\\Desktop\\Projects\\BZTech\\webStudio\\webstudio\\Frontend\\apps\\builder\\build",
+    "future": {
+      "v3_fetcherPersist": false,
+      "v3_relativeSplatPath": false,
+      "v3_throwAbortReason": false,
+      "v3_routeConfig": false,
+      "v3_singleFetch": false,
+      "v3_lazyRouteDiscovery": false,
+      "unstable_optimizeDeps": false
+    },
+    "manifest": false,
+    "publicPath": "/",
+    "routes": {
+      "root": {
+        "path": "",
+        "id": "root",
+        "file": "root.tsx"
+      },
+      "routes/rest.buildId.$projectId": {
+        "file": "routes/rest.buildId.$projectId.tsx",
+        "id": "routes/rest.buildId.$projectId",
+        "path": "rest/buildId/:projectId",
+        "parentId": "root"
+      },
+      "routes/_ui.dashboard.templates": {
+        "file": "routes/_ui.dashboard.templates.tsx",
+        "id": "routes/_ui.dashboard.templates",
+        "path": "templates",
+        "parentId": "routes/_ui.dashboard"
+      },
+      "routes/auth.github_.callback": {
+        "file": "routes/auth.github_.callback.tsx",
+        "id": "routes/auth.github_.callback",
+        "path": "auth/github/callback",
+        "parentId": "root"
+      },
+      "routes/auth.google_.callback": {
+        "file": "routes/auth.google_.callback.tsx",
+        "id": "routes/auth.google_.callback",
+        "path": "auth/google/callback",
+        "parentId": "root"
+      },
+      "routes/rest.resources-loader": {
+        "file": "routes/rest.resources-loader.ts",
+        "id": "routes/rest.resources-loader",
+        "path": "rest/resources-loader",
+        "parentId": "root"
+      },
+      "routes/rest.data.$projectId": {
+        "file": "routes/rest.data.$projectId.ts",
+        "id": "routes/rest.data.$projectId",
+        "path": "rest/data/:projectId",
+        "parentId": "root"
+      },
+      "routes/_ui.dashboard.search": {
+        "file": "routes/_ui.dashboard.search.tsx",
+        "id": "routes/_ui.dashboard.search",
+        "path": "search",
+        "parentId": "routes/_ui.dashboard"
+      },
+      "routes/_ui.dashboard._index": {
+        "file": "routes/_ui.dashboard._index.tsx",
+        "id": "routes/_ui.dashboard._index",
+        "index": true,
+        "parentId": "routes/_ui.dashboard"
+      },
+      "routes/rest.build.$buildId": {
+        "file": "routes/rest.build.$buildId.tsx",
+        "id": "routes/rest.build.$buildId",
+        "path": "rest/build/:buildId",
+        "parentId": "root"
+      },
+      "routes/oauth.ws.authorize": {
+        "file": "routes/oauth.ws.authorize.tsx",
+        "id": "routes/oauth.ws.authorize",
+        "path": "oauth/ws/authorize",
+        "parentId": "root"
+      },
+      "routes/rest.assets_.$name": {
+        "file": "routes/rest.assets_.$name.tsx",
+        "id": "routes/rest.assets_.$name",
+        "path": "rest/assets/:name",
+        "parentId": "root"
+      },
+      "routes/auth.ws_.callback": {
+        "file": "routes/auth.ws_.callback.ts",
+        "id": "routes/auth.ws_.callback",
+        "path": "auth/ws/callback",
+        "parentId": "root"
+      },
+      "routes/dashboard-logout": {
+        "file": "routes/dashboard-logout.ts",
+        "id": "routes/dashboard-logout",
+        "path": "dashboard-logout",
+        "parentId": "root"
+      },
+      "routes/_ui.login._index": {
+        "file": "routes/_ui.login._index.tsx",
+        "id": "routes/_ui.login._index",
+        "path": "login",
+        "index": true,
+        "parentId": "routes/_ui"
+      },
+      "routes/cgi.empty[.]gif": {
+        "file": "routes/cgi.empty[.]gif.ts",
+        "id": "routes/cgi.empty[.]gif",
+        "path": "cgi/empty.gif",
+        "parentId": "root"
+      },
+      "routes/builder-logout": {
+        "file": "routes/builder-logout.ts",
+        "id": "routes/builder-logout",
+        "path": "builder-logout",
+        "parentId": "root"
+      },
+      "routes/oauth.ws.token": {
+        "file": "routes/oauth.ws.token.ts",
+        "id": "routes/oauth.ws.token",
+        "path": "oauth/ws/token",
+        "parentId": "root"
+      },
+      "routes/_canvas.canvas": {
+        "file": "routes/_canvas.canvas.tsx",
+        "id": "routes/_canvas.canvas",
+        "path": "canvas",
+        "parentId": "routes/_canvas"
+      },
+      "routes/_ui.(builder)": {
+        "file": "routes/_ui.(builder).tsx",
+        "id": "routes/_ui.(builder)",
+        "path": "builder?",
+        "parentId": "routes/_ui"
+      },
+      "routes/_ui.dashboard": {
+        "file": "routes/_ui.dashboard.tsx",
+        "id": "routes/_ui.dashboard",
+        "path": "dashboard",
+        "parentId": "routes/_ui"
+      },
+      "routes/auth.github": {
+        "file": "routes/auth.github.tsx",
+        "id": "routes/auth.github",
+        "path": "auth/github",
+        "parentId": "root"
+      },
+      "routes/auth.google": {
+        "file": "routes/auth.google.tsx",
+        "id": "routes/auth.google",
+        "path": "auth/google",
+        "parentId": "root"
+      },
+      "routes/cgi.asset.$": {
+        "file": "routes/cgi.asset.$.ts",
+        "id": "routes/cgi.asset.$",
+        "path": "cgi/asset/*",
+        "parentId": "root"
+      },
+      "routes/cgi.image.$": {
+        "file": "routes/cgi.image.$.ts",
+        "id": "routes/cgi.image.$",
+        "path": "cgi/image/*",
+        "parentId": "root"
+      },
+      "routes/cgi.video.$": {
+        "file": "routes/cgi.video.$.ts",
+        "id": "routes/cgi.video.$",
+        "path": "cgi/video/*",
+        "parentId": "root"
+      },
+      "routes/rest.assets": {
+        "file": "routes/rest.assets.tsx",
+        "id": "routes/rest.assets",
+        "path": "rest/assets",
+        "parentId": "root"
+      },
+      "routes/rest.patch": {
+        "file": "routes/rest.patch.ts",
+        "id": "routes/rest.patch",
+        "path": "rest/patch",
+        "parentId": "root"
+      },
+      "routes/_ui.logout": {
+        "file": "routes/_ui.logout.tsx",
+        "id": "routes/_ui.logout",
+        "path": "logout",
+        "parentId": "routes/_ui"
+      },
+      "routes/_ui.error": {
+        "file": "routes/_ui.error.tsx",
+        "id": "routes/_ui.error",
+        "path": "error",
+        "parentId": "routes/_ui"
+      },
+      "routes/auth.dev": {
+        "file": "routes/auth.dev.tsx",
+        "id": "routes/auth.dev",
+        "path": "auth/dev",
+        "parentId": "root"
+      },
+      "routes/auth.ws": {
+        "file": "routes/auth.ws.ts",
+        "id": "routes/auth.ws",
+        "path": "auth/ws",
+        "parentId": "root"
+      },
+      "routes/_canvas": {
+        "file": "routes/_canvas.tsx",
+        "id": "routes/_canvas",
+        "parentId": "root"
+      },
+      "routes/trpc.$": {
+        "file": "routes/trpc.$.ts",
+        "id": "routes/trpc.$",
+        "path": "trpc/*",
+        "parentId": "root"
+      },
+      "routes/n8n.$": {
+        "file": "routes/n8n.$.tsx",
+        "id": "routes/n8n.$",
+        "path": "n8n/*",
+        "parentId": "root"
+      },
+      "routes/_ui.$": {
+        "file": "routes/_ui.$.tsx",
+        "id": "routes/_ui.$",
+        "path": "*",
+        "parentId": "routes/_ui"
+      },
+      "routes/_ui": {
+        "file": "routes/_ui.tsx",
+        "id": "routes/_ui",
+        "parentId": "root"
+      }
+    },
+    "serverBuildFile": "index.js",
+    "serverModuleFormat": "esm",
+    "ssr": true
+  },
+  "viteConfig": {
+    "build": {
+      "assetsDir": "assets"
+    }
+  }
+}

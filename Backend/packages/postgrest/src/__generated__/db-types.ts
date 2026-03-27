@@ -686,6 +686,7 @@ export type Database = {
           email: string | null;
           id: string;
           image: string | null;
+          passwordHash: string | null;
           projectsTags: Json;
           provider: string | null;
           teamId: string | null;
@@ -696,6 +697,7 @@ export type Database = {
           email?: string | null;
           id: string;
           image?: string | null;
+          passwordHash?: string | null;
           projectsTags?: Json;
           provider?: string | null;
           teamId?: string | null;
@@ -706,6 +708,7 @@ export type Database = {
           email?: string | null;
           id?: string;
           image?: string | null;
+          passwordHash?: string | null;
           projectsTags?: Json;
           provider?: string | null;
           teamId?: string | null;

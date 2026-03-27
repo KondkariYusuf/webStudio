@@ -105,7 +105,7 @@ const LoginRoute = () => {
   const data = useLoaderData<typeof loader>();
   return (
     <ClientOnly>
-      <Login {...data} errorMessage={errorMessage} />
+      <Login {...data} mode="login" errorMessage={errorMessage} />
     </ClientOnly>
   );
 };

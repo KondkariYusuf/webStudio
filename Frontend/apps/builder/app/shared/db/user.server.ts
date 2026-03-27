@@ -6,6 +6,12 @@ import {
 import type { GitHubProfile } from "remix-auth-github";
 import type { GoogleProfile } from "remix-auth-google";
 import { z } from "zod";
+import { hashPassword, verifyPassword } from "~/services/password.server";
+
+const emailPasswordSchema = z.object({
+  email: z.string().email().max(320),
+  password: z.string().min(8).max(128),
+});
 
 export type User = Omit<
   Database["public"]["Tables"]["User"]["Row"],
@@ -125,6 +131,95 @@ export const createOrLoginWithDev = async (
 
   const newUser = await genericCreateAccount(context, userData);
   return newUser;
+};
+
+const normalizeEmail = (email: string) => email.trim().toLowerCase();
+
+export const registerWithEmailPassword = async (
+  context: AppContext,
+  credentials: { email: string; password: string }
+): Promise<AuthUser> => {
+  const parsed = emailPasswordSchema.safeParse(credentials);
+  if (parsed.success === false) {
+    throw new Error("Invalid email or password");
+  }
+
+  const email = normalizeEmail(parsed.data.email);
+  const passwordHash = hashPassword(parsed.data.password);
+
+  const existingUser = await context.postgrest.client
+    .from("User")
+    .select("id,passwordHash")
+    .eq("email", email)
+    .maybeSingle();
+
+  if (existingUser.error) {
+    console.error(existingUser.error);
+    throw new Error("Failed to register user");
+  }
+
+  if (existingUser.data?.id) {
+    throw new Error("Email is already registered");
+  }
+
+  const id = crypto.randomUUID();
+
+  const newUser = await context.postgrest.client.from("User").insert({
+    id,
+    email,
+    username: email,
+    image: "",
+    provider: "password",
+    passwordHash,
+  });
+
+  if (newUser.error) {
+    if (newUser.error.code === "23505") {
+      throw new Error("Email is already registered");
+    }
+    console.error(newUser.error);
+    throw new Error("Failed to register user");
+  }
+
+  return { id };
+};
+
+export const loginWithEmailPassword = async (
+  context: AppContext,
+  credentials: { email: string; password: string }
+): Promise<AuthUser> => {
+  const parsed = emailPasswordSchema.safeParse(credentials);
+  if (parsed.success === false) {
+    throw new Error("Invalid email or password");
+  }
+
+  const email = normalizeEmail(parsed.data.email);
+
+  const user = await context.postgrest.client
+    .from("User")
+    .select("id,passwordHash")
+    .eq("email", email)
+    .maybeSingle();
+
+  if (user.error) {
+    console.error(user.error);
+    throw new Error("Failed to login");
+  }
+
+  if (user.data?.id == null || user.data.passwordHash == null) {
+    throw new Error("Invalid email or password");
+  }
+
+  const isValidPassword = verifyPassword({
+    password: parsed.data.password,
+    passwordHash: user.data.passwordHash,
+  });
+
+  if (isValidPassword === false) {
+    throw new Error("Invalid email or password");
+  }
+
+  return { id: user.data.id };
 };
 
 export const userProjectTagSchema = z.object({

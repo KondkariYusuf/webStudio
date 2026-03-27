@@ -3,13 +3,14 @@ import {
   Button,
   Flex,
   globalCss,
+  InputField,
   rawTheme,
   Text,
   theme,
 } from "@webstudio-is/design-system";
 import { GithubIcon, GoogleIcon, WebstudioIcon } from "@webstudio-is/icons";
-import { Form } from "@remix-run/react";
-import { authPath } from "~/shared/router-utils";
+import { Form, Link, useSearchParams } from "@remix-run/react";
+import { authPath, loginPath, registerPath } from "~/shared/router-utils";
 import { SecretLogin } from "./secret-login";
 
 const globalStyles = globalCss({
@@ -20,6 +21,7 @@ const globalStyles = globalCss({
 });
 
 export type LoginProps = {
+  mode?: "login" | "register";
   errorMessage?: string;
   isGithubEnabled?: boolean;
   isGoogleEnabled?: boolean;
@@ -27,11 +29,15 @@ export type LoginProps = {
 };
 
 export const Login = ({
+  mode = "login",
   errorMessage,
   isGithubEnabled,
   isGoogleEnabled,
   isSecretLoginEnabled,
 }: LoginProps) => {
+  const [searchParams] = useSearchParams();
+  const returnTo = searchParams.get("returnTo") ?? undefined;
+
   globalStyles();
   return (
     <Flex
@@ -58,35 +64,111 @@ export const Login = ({
       >
         <WebstudioIcon size={48} />
         <Text variant="brandSectionTitle" as="h1" align="center">
-          Welcome to Webstudio
+          {mode === "register" ? "Create your account" : "Welcome to Webstudio"}
         </Text>
 
         <TooltipProvider>
           <Flex direction="column" gap="3" css={{ width: "100%" }}>
-            <Form method="post" style={{ display: "contents" }}>
-              <Button
-                disabled={isGoogleEnabled === false}
-                prefix={<GoogleIcon size={22} />}
-                color="primary"
-                css={{ height: theme.spacing[15] }}
-                formAction={authPath({ provider: "google" })}
+            {mode === "register" ? (
+              <form
+                method="post"
+                action={authPath({ provider: "password-register" })}
               >
-                Sign in with Google
-              </Button>
-              <Button
-                disabled={isGithubEnabled === false}
-                prefix={<GithubIcon size={22} fill="currentColor" />}
-                color="ghost"
-                css={{
-                  border: `1px solid ${theme.colors.borderDark}`,
-                  height: theme.spacing[15],
-                }}
-                formAction={authPath({ provider: "github" })}
+                <Flex direction="column" gap="2">
+                  <InputField
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    placeholder="Email"
+                  />
+                  <InputField
+                    name="password"
+                    type="password"
+                    autoComplete="new-password"
+                    required
+                    minLength={8}
+                    maxLength={128}
+                    placeholder="Create Password"
+                  />
+                  <Button
+                    type="submit"
+                    color="primary"
+                    css={{ height: theme.spacing[15] }}
+                  >
+                    Create Account
+                  </Button>
+                </Flex>
+              </form>
+            ) : (
+              <form
+                method="post"
+                action={authPath({ provider: "password-login" })}
               >
-                Sign in with GitHub
-              </Button>
-            </Form>
-            {isSecretLoginEnabled && <SecretLogin />}
+                <Flex direction="column" gap="2">
+                  <InputField
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    placeholder="Email"
+                  />
+                  <InputField
+                    name="password"
+                    type="password"
+                    autoComplete="current-password"
+                    required
+                    minLength={8}
+                    maxLength={128}
+                    placeholder="Password"
+                  />
+                  <Button
+                    type="submit"
+                    color="primary"
+                    css={{ height: theme.spacing[15] }}
+                  >
+                    Log in with Email
+                  </Button>
+                </Flex>
+              </form>
+            )}
+
+            <Text align="center">
+              {mode === "register" ? (
+                <Link to={loginPath({ returnTo })}>Already have an account? Log in</Link>
+              ) : (
+                <Link to={registerPath({ returnTo })}>New here? Create an account</Link>
+              )}
+            </Text>
+
+            {mode === "login" ? (
+              <>
+                <Form method="post" style={{ display: "contents" }}>
+                  <Button
+                    disabled={isGoogleEnabled === false}
+                    prefix={<GoogleIcon size={22} />}
+                    color="primary"
+                    css={{ height: theme.spacing[15] }}
+                    formAction={authPath({ provider: "google" })}
+                  >
+                    Sign in with Google
+                  </Button>
+                  <Button
+                    disabled={isGithubEnabled === false}
+                    prefix={<GithubIcon size={22} fill="currentColor" />}
+                    color="ghost"
+                    css={{
+                      border: `1px solid ${theme.colors.borderDark}`,
+                      height: theme.spacing[15],
+                    }}
+                    formAction={authPath({ provider: "github" })}
+                  >
+                    Sign in with GitHub
+                  </Button>
+                </Form>
+                {isSecretLoginEnabled && <SecretLogin />}
+              </>
+            ) : null}
           </Flex>
         </TooltipProvider>
         {errorMessage ? (

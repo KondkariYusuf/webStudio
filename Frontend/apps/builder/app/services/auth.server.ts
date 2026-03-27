@@ -127,6 +127,68 @@ if (env.DEV_LOGIN === "true") {
   );
 }
 
+authenticator.use(
+  new FormStrategy(async ({ form, request }) => {
+    const email = form.get("email")?.toString() ?? "";
+    const password = form.get("password")?.toString() ?? "";
+
+    try {
+      const context = await createContext(request);
+      const user = await db.user.loginWithEmailPassword(context, {
+        email,
+        password,
+      });
+
+      return {
+        userId: user.id,
+        createdAt: Date.now(),
+      };
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error({
+          error,
+          extras: {
+            loginMethod: AUTH_PROVIDERS.LOGIN_PASSWORD,
+          },
+        });
+      }
+      throw error;
+    }
+  }),
+  "password-login"
+);
+
+authenticator.use(
+  new FormStrategy(async ({ form, request }) => {
+    const email = form.get("email")?.toString() ?? "";
+    const password = form.get("password")?.toString() ?? "";
+
+    try {
+      const context = await createContext(request);
+      const user = await db.user.registerWithEmailPassword(context, {
+        email,
+        password,
+      });
+
+      return {
+        userId: user.id,
+        createdAt: Date.now(),
+      };
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error({
+          error,
+          extras: {
+            loginMethod: AUTH_PROVIDERS.REGISTER_PASSWORD,
+          },
+        });
+      }
+      throw error;
+    }
+  }),
+  "password-register"
+);
+
 export const findAuthenticatedUser = async (request: Request) => {
   const user = isBuilder(request)
     ? await builderAuthenticator.isAuthenticated(request)
