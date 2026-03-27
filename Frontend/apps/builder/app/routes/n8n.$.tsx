@@ -49,6 +49,9 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     );
   }
 
+  // Telemetry removed for self-hosted privacy version.
+  return json({});
+
   const webhookEnvParsed = zWebhookEnv.safeParse(env);
   if (webhookEnvParsed.success === false) {
     throw new Response(webhookEnvParsed.error.message, {

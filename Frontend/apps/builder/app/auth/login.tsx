@@ -8,10 +8,9 @@ import {
   Text,
   theme,
 } from "@webstudio-is/design-system";
-import { GithubIcon, GoogleIcon, WebstudioIcon } from "@webstudio-is/icons";
-import { Form, Link, useSearchParams } from "@remix-run/react";
+import { WebstudioIcon } from "@webstudio-is/icons";
+import { Link, useSearchParams } from "@remix-run/react";
 import { authPath, loginPath, registerPath } from "~/shared/router-utils";
-import { SecretLogin } from "./secret-login";
 
 const globalStyles = globalCss({
   body: {
@@ -140,35 +139,6 @@ export const Login = ({
                 <Link to={registerPath({ returnTo })}>New here? Create an account</Link>
               )}
             </Text>
-
-            {mode === "login" ? (
-              <>
-                <Form method="post" style={{ display: "contents" }}>
-                  <Button
-                    disabled={isGoogleEnabled === false}
-                    prefix={<GoogleIcon size={22} />}
-                    color="primary"
-                    css={{ height: theme.spacing[15] }}
-                    formAction={authPath({ provider: "google" })}
-                  >
-                    Sign in with Google
-                  </Button>
-                  <Button
-                    disabled={isGithubEnabled === false}
-                    prefix={<GithubIcon size={22} fill="currentColor" />}
-                    color="ghost"
-                    css={{
-                      border: `1px solid ${theme.colors.borderDark}`,
-                      height: theme.spacing[15],
-                    }}
-                    formAction={authPath({ provider: "github" })}
-                  >
-                    Sign in with GitHub
-                  </Button>
-                </Form>
-                {isSecretLoginEnabled && <SecretLogin />}
-              </>
-            ) : null}
           </Flex>
         </TooltipProvider>
         {errorMessage ? (
