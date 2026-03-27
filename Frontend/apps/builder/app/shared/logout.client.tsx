@@ -122,14 +122,25 @@ export const LogoutPage = (props: LogoutPageProps) => {
     if (formData.get("error") !== null) {
       const value = formData.get("error")!.toString();
 
-      const failedProjects = (JSON.parse(value) as string[])
-        .map((project) => `- ${new URL(project).origin}`)
-        .join("\n");
+      try {
+        const failedProjects = JSON.parse(value) as string[];
+        const failedProjectOrigins = failedProjects.map((project) => {
+          try {
+            return new URL(project).origin;
+          } catch {
+            return project;
+          }
+        });
 
-      throw {
-        message: "Logout failed. Please try again later",
-        description: `Something went wrong during the projects logout. Please try again later.\nProjects failed to logout:\n${failedProjects}`,
-      };
+        console.warn(
+          "Project logout partially failed. Continuing dashboard logout.",
+          failedProjectOrigins
+        );
+      } catch {
+        console.warn(
+          "Project logout partially failed. Continuing dashboard logout."
+        );
+      }
     }
 
     window.location.href = parsedData.data.redirectTo;
