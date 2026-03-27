@@ -4,19 +4,19 @@
   "private": true,
   "type": "module",
   "workspaces": [
-    "packages/*",
-    "apps/*",
-    "fixtures/*"
+    "Backend/packages/*",
+    "Frontend/apps/*",
+    "Frontend/fixtures/*"
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present --include-workspace-root=false",
     "dts": "npm run dts --workspaces --if-present --include-workspace-root=false",
-    "dev": "npm run dev -w @webstudio-is/builder",
+    "dev": "npm run demo:seed -w @webstudio-is/builder && npm run dev -w @webstudio-is/builder",
     "lint": "eslint \"**/*.{ts,tsx}\" --max-warnings 0",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "storybook:dev": "storybook dev -p 6006",
     "storybook:build": "storybook build",
-    "migrations": "npm run generate -w @webstudio-is/prisma-client && npm run migrations -w @webstudio-is/prisma-client -- migrate --dev --cwd ../../apps/builder",
+    "migrations": "npm run generate -w @webstudio-is/prisma-client && npm run migrations -w @webstudio-is/prisma-client -- migrate --dev --cwd ../../Frontend/apps/builder",
     "build-figma-tokens": "npm run build-figma-tokens -w @webstudio-is/design-system",
     "postinstall": "patch-package"
   },

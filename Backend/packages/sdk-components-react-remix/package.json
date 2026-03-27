@@ -1,0 +1,45 @@
+{
+  "name": "@webstudio-is/sdk-components-react-remix",
+  "version": "0.0.0-webstudio-version",
+  "description": "Webstudio components for Remix",
+  "author": "Webstudio <github@webstudio.is>",
+  "homepage": "https://webstudio.is",
+  "license": "AGPL-3.0-or-later",
+  "private": false,
+  "type": "module",
+  "files": [
+    "lib/*",
+    "!*.{test,stories}.*"
+  ],
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "webstudio": "./src/components.ts",
+      "types": "./lib/types/components.d.ts",
+      "import": "./lib/components.js"
+    }
+  },
+  "scripts": {
+    "build": "node -e \"require('node:fs').rmSync('lib', { recursive: true, force: true })\" && esbuild src/components.ts --outdir=lib --bundle --format=esm --packages=external",
+    "dts": "tsc --project tsconfig.dts.json",
+    "typecheck": "tsgo --noEmit"
+  },
+  "peerDependencies": {
+    "@remix-run/react": "^2.9.2",
+    "react": "18.3.0-canary-14898b6a9-20240318",
+    "react-dom": "18.3.0-canary-14898b6a9-20240318"
+  },
+  "dependencies": {
+    "@webstudio-is/react-sdk": "0.0.0-webstudio-version",
+    "@webstudio-is/sdk": "0.0.0-webstudio-version",
+    "@webstudio-is/sdk-components-react": "0.0.0-webstudio-version"
+  },
+  "devDependencies": {
+    "@remix-run/react": "^2.16.5",
+    "@types/react": "^18.2.70",
+    "@types/react-dom": "^18.2.25",
+    "@webstudio-is/tsconfig": "1.0.7",
+    "react": "18.3.0-canary-14898b6a9-20240318",
+    "react-dom": "18.3.0-canary-14898b6a9-20240318"
+  }
+}

@@ -2,9 +2,9 @@ import type { Preview } from "@storybook/react";
 import * as React from "react";
 import { useEffect } from "react";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
-import { setEnv } from "../packages/feature-flags/src/index";
-import { theme, globalCss } from "../packages/design-system/src/index";
-import { color } from "../packages/design-system/src/__generated__/figma-design-tokens";
+import { setEnv } from "../Backend/packages/feature-flags/src/index";
+import { theme, globalCss } from "../Backend/packages/design-system/src/index";
+import { color } from "../Backend/packages/design-system/src/__generated__/figma-design-tokens";
 
 // this adds <style> tags to the <head> of the document
 import "@fontsource-variable/inter";
