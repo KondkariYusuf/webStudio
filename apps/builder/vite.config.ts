@@ -4,7 +4,7 @@ import { vitePlugin as remix } from "@remix-run/dev";
 import { vercelPreset } from "@vercel/remix/vite";
 import type { IncomingMessage } from "node:http";
 import pc from "picocolors";
-import { readFileSync, existsSync } from "node:fs";
+import { existsSync } from "node:fs";
 import fg from "fast-glob";
 
 const rootDir = ["..", "../..", "../../.."]
@@ -136,17 +136,9 @@ export default defineConfig(({ mode }) => {
       "process.env.NODE_ENV": JSON.stringify(mode),
     },
     server: {
-      // Service-to-service OAuth token call requires a specified host for the wstd.dev domain
-      host: "wstd.dev",
+      host: "localhost",
       port: 5173,
       strictPort: true,
-      // Needed for SSL
-      proxy: {},
-
-      https: {
-        key: readFileSync("../../https/privkey.pem"),
-        cert: readFileSync("../../https/fullchain.pem"),
-      },
       cors: ((
         req: IncomingMessage,
         callback: (error: Error | null, options: CorsOptions | null) => void

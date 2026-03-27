@@ -11,7 +11,7 @@
   "scripts": {
     "build": "npm run build --workspaces --if-present --include-workspace-root=false",
     "dts": "npm run dts --workspaces --if-present --include-workspace-root=false",
-    "dev": "npm run dev -w @webstudio-is/builder",
+    "dev": "npm run demo:seed -w @webstudio-is/builder && npm run dev -w @webstudio-is/builder",
     "lint": "eslint \"**/*.{ts,tsx}\" --max-warnings 0",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "storybook:dev": "storybook dev -p 6006",

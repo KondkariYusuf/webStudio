@@ -346,8 +346,20 @@ const ensureUser = async () => {
     where: { email: "hello@webstudio.is" },
     select: { id: true, email: true },
   });
-  if (user === null) throw new Error("Dev user hello@webstudio.is not found");
-  return user;
+
+  if (user !== null) {
+    return user;
+  }
+
+  return prisma.user.create({
+    data: {
+      email: "hello@webstudio.is",
+      username: "admin",
+      image: "",
+      provider: "dev",
+    },
+    select: { id: true, email: true },
+  });
 };
 
 const ensureProject = async (userId: string) => {
