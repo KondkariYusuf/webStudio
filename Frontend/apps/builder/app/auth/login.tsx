@@ -30,9 +30,6 @@ export type LoginProps = {
 export const Login = ({
   mode = "login",
   errorMessage,
-  isGithubEnabled,
-  isGoogleEnabled,
-  isSecretLoginEnabled,
 }: LoginProps) => {
   const [searchParams] = useSearchParams();
   const returnTo = searchParams.get("returnTo") ?? undefined;

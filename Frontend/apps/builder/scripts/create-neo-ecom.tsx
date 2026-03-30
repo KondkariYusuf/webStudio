@@ -19,6 +19,7 @@ import {
   type StyleSourceSelection,
 } from "@webstudio-is/sdk";
 import { css, renderData, ws } from "@webstudio-is/template";
+import { hashPassword } from "../app/services/password.server";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, "..", "..", "..");
@@ -75,6 +76,8 @@ const { PrismaClient } = await import(
 );
 const prisma = new PrismaClient();
 const makeId = () => randomUUID().replaceAll("-", "").slice(0, 21);
+const ecommerceAdminEmail = "admin@gmail.com";
+const ecommerceAdminPassword = "admin123";
 
 const createRootFolder = (children: Folder["children"] = []): Folder => ({
   id: ROOT_FOLDER_ID,
@@ -342,21 +345,32 @@ const createUniqueDomain = async (base: string, excludeId?: string) => {
 };
 
 const ensureUser = async () => {
+  const passwordHash = hashPassword(ecommerceAdminPassword);
   const user = await prisma.user.findFirst({
-    where: { email: "hello@webstudio.is" },
+    where: { email: ecommerceAdminEmail },
     select: { id: true, email: true },
   });
 
   if (user !== null) {
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        provider: "password",
+        passwordHash,
+        username: ecommerceAdminEmail,
+        image: "",
+      },
+    });
     return user;
   }
 
   return prisma.user.create({
     data: {
-      email: "hello@webstudio.is",
-      username: "admin",
+      email: ecommerceAdminEmail,
+      username: ecommerceAdminEmail,
       image: "",
-      provider: "dev",
+      provider: "password",
+      passwordHash,
     },
     select: { id: true, email: true },
   });
@@ -445,6 +459,10 @@ const main = async () => {
     JSON.stringify(
       {
         status: "ok",
+        user: {
+          email: ecommerceAdminEmail,
+          password: ecommerceAdminPassword,
+        },
         projectId: project.id,
         buildId,
         title: "neo-ecom",
