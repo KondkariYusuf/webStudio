@@ -12,6 +12,7 @@
     "build:tailwind-preflight": "tsx --conditions=webstudio ./app/shared/tailwind/preflight-bin.ts && prettier --write ./app/shared/tailwind/__generated__/preflight.ts",
     "demo:seed": "npx --yes tsx --conditions=webstudio ./scripts/create-neo-ecom.tsx",
     "amazon:seed": "npx --yes tsx --conditions=webstudio ./scripts/create-amazon-clone.tsx",
+    "netflix:seed": "npx --yes tsx --conditions=webstudio ./scripts/create-netflix-clone.tsx",
     "start": "remix-serve build/server/index.js",
     "dev": "remix vite:dev",
     "dev:auth": "cross-env DEBUG=OAuth2Strategy,ws:* remix vite:dev",
