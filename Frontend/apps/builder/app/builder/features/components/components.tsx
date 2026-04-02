@@ -139,6 +139,7 @@ const filterAndGroupComponents = ({
 
   let groups: Groups = categories.map((category) => {
     const metas = (metasByCategory.get(category) ?? []).filter((meta) => {
+      // Allow data category elements to appear in the UI
       if (documentType === "xml" && meta.category === "data") {
         return meta.name === collectionComponent;
       }

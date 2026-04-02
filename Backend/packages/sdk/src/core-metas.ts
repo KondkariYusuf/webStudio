@@ -45,6 +45,7 @@ export const collectionComponent = "ws:collection";
 
 const collectionMeta: WsComponentMeta = {
   label: "Collection",
+  category: "data",
   icon: ListViewIcon,
   contentModel: {
     category: "instance",
