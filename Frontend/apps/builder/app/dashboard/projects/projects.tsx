@@ -36,10 +36,10 @@ export const ProjectsGrid = ({
   return (
     <List asChild>
       <Grid
-        gap="6"
+        gap="8"
         css={{
           gridTemplateColumns: `repeat(auto-fill, minmax(${rawTheme.spacing[31]}, 1fr))`,
-          paddingBottom: theme.spacing[13],
+          paddingBottom: theme.spacing[20],
           width: "100%",
         }}
       >
@@ -113,7 +113,7 @@ export const Projects = (props: ProjectsProps) => {
   let projects = props.projects;
   if (selectedTags.length > 0) {
     projects = projects.filter((project) =>
-      setIsSubsetOf(new Set(selectedTags), new Set(project.tags))
+      setIsSubsetOf(new Set(selectedTags), new Set(project.tags ?? []))
     );
   }
   projects = sortProjects(projects, sortState);
@@ -121,19 +121,55 @@ export const Projects = (props: ProjectsProps) => {
   return (
     <Main>
       <Header variant="main">
-        <Text variant="brandSectionTitle" as="h2">
-          Projects
-        </Text>
-        <Flex gap="2">
+        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+          <Text
+            as="h2"
+            css={{
+              color: "#0F172A",
+              fontWeight: "700",
+              fontSize: "24px",
+              letterSpacing: "-0.04em",
+            }}
+          >
+            Projects
+          </Text>
+          <Text css={{ color: "#64748B", fontSize: "14px" }}>
+            Manage and edit your web projects
+          </Text>
+        </div>
+        <Flex gap="3" align="center">
           <ToggleGroup
             type="single"
             value={viewMode}
             onValueChange={handleViewChange}
+            css={{
+                background: "#e7e9ef",
+                padding: "2px",
+                borderRadius: "8px",
+            }}
           >
-            <ToggleGroupButton value="grid" aria-label="Grid view">
+            <ToggleGroupButton
+              value="grid"
+              aria-label="Grid view"
+              style={{
+                  borderRadius: "6px",
+                  border: "none",
+                  background: viewMode === "grid" ? "#FFFFFF" : "transparent",
+                  boxShadow: viewMode === "grid" ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
+              }}
+            >
               <RepeatGridIcon />
             </ToggleGroupButton>
-            <ToggleGroupButton value="list" aria-label="List view">
+            <ToggleGroupButton
+              value="list"
+              aria-label="List view"
+              style={{
+                  borderRadius: "6px",
+                  border: "none",
+                  background: viewMode === "list" ? "#FFFFFF" : "transparent",
+                  boxShadow: viewMode === "list" ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
+              }}
+            >
               <ListViewIcon />
             </ToggleGroupButton>
           </ToggleGroup>

@@ -12,6 +12,7 @@ import {
   PanelBanner,
   Link,
   buttonStyle,
+  Box,
 } from "@webstudio-is/design-system";
 import { BodyIcon, ExtensionIcon } from "@webstudio-is/icons";
 import { NavLink, useLocation, useRevalidator } from "@remix-run/react";
@@ -23,7 +24,6 @@ import { CollapsibleSection } from "~/builder/shared/collapsible-section";
 import { ProfileMenu } from "./profile-menu";
 import { Projects } from "./projects/projects";
 import { Templates } from "./templates/templates";
-import { Header } from "./shared/layout";
 import { help } from "~/shared/help";
 import { SearchResults } from "./search/search-results";
 import type { DashboardData } from "./shared/types";
@@ -79,17 +79,36 @@ const sidebarLinkStyle = css({
   cursor: "pointer",
   display: "flex",
   alignItems: "center",
-  gap: theme.spacing[5],
-  height: theme.spacing[13],
-  paddingInline: theme.panel.paddingInline,
+  gap: theme.spacing[3],
+  height: "40px",
+  paddingInline: theme.spacing[4],
+  marginInline: theme.spacing[3],
+  marginBottom: theme.spacing[2],
+  borderRadius: "10px",
   outline: "none",
-  "&:focus-visible, &:hover": {
-    background: theme.colors.backgroundHover,
+  transition: "all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1)",
+  color: "#64748B",
+  fontWeight: 500,
+  fontSize: "13px",
+
+  "&:focus-visible": {
+    boxShadow: `0 0 0 2px #FFFFFF, 0 0 0 4px #928ddd`,
+  },
+  "&:hover": {
+    background: "#e7e9ef",
+    color: "#0F172A",
   },
   "&[aria-current=page]": {
-    background: theme.colors.backgroundItemCurrent,
-    color: theme.colors.foregroundMain,
-  },
+    background: "#FFFFFF",
+    color: "#928ddd",
+    boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.02)",
+    border: "1px solid #c3c1c1",
+    fontWeight: 600,
+    "& svg": {
+       color: "#928ddd",
+       transform: "scale(1.05)",
+    }
+  }
 });
 
 const NavigationItems = ({
@@ -114,7 +133,7 @@ const NavigationItems = ({
               className={sidebarLinkStyle()}
             >
               {item.prefix}
-              <Text variant="labels" color="main">
+              <Text variant="labels" css={{ color: "inherit", fontWeight: "inherit" }}>
                 {item.children}
               </Text>
             </NavLink>
@@ -176,81 +195,218 @@ export const Dashboard = () => {
           direction="column"
           shrink={false}
           css={{
-            width: theme.sizes.sidebarWidth,
-            borderRight: `1px solid ${theme.colors.borderMain}`,
+            width: "280px",
+            borderRight: "1px solid #c3c1c1",
             position: "sticky",
             top: 0,
+            background: "#FFFFFF",
           }}
         >
-          <Header variant="aside">
-            <ProfileMenu user={user} userPlanFeatures={userPlanFeatures} />
-          </Header>
+          <Flex
+            align="center"
+            gap="3"
+            css={{
+              height: "96px",
+              paddingInline: theme.spacing[8],
+              marginBottom: theme.spacing[4],
+            }}
+          >
+            <div
+              style={{
+                width: 32,
+                height: 32,
+                background: "linear-gradient(135deg, #928ddd 0%, #b2aef2 100%)",
+                borderRadius: "8px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "white",
+                fontWeight: "bold",
+                fontSize: "16px",
+                boxShadow: "0 4px 12px rgba(146, 141, 221, 0.3)",
+              }}
+            >
+              W
+            </div>
+            <Text
+              css={{
+                fontSize: "18px",
+                fontWeight: "700",
+                color: "#0F172A",
+                letterSpacing: "-0.04em",
+              }}
+            >
+              Webstudio
+            </Text>
+          </Flex>
+
           <Flex
             direction="column"
             gap="3"
             css={{
-              paddingInline: theme.spacing[7],
-              paddingBottom: theme.spacing[7],
+              paddingInline: theme.spacing[5],
+              paddingBottom: theme.spacing[12],
             }}
           >
-            <Search />
-          </Flex>
-          <nav>
-            <CollapsibleSection label="Workspace" fullWidth>
-              <NavigationItems
-                items={
-                  view === "welcome" || hasProjects === false
-                    ? [
-                        {
-                          to: dashboardPath(),
-                          prefix: <ExtensionIcon />,
-                          children: "Welcome",
-                        },
-                      ]
-                    : [
-                        {
-                          to: dashboardPath("projects"),
-                          prefix: <BodyIcon />,
-                          children: "Projects",
-                        },
-                        {
-                          to: dashboardPath("templates"),
-                          prefix: <ExtensionIcon />,
-                          children: "Starter templates",
-                        },
-                      ]
+            <Box
+              as="button"
+              onClick={() => {
+                // Trigger search via focus if needed, or rely on Search component internal trigger
+              }}
+              css={{
+                all: "unset",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "between",
+                height: "36px",
+                width: "100%",
+                background: "#e7e9ef",
+                border: "1px solid #c3c1c1",
+                borderRadius: "10px",
+                paddingInline: theme.spacing[3],
+                cursor: "text",
+                transition: "all 0.2s ease",
+                "&:hover": {
+                  background: "#cac8f9",
+                  borderColor: "#b2aef2",
+                },
+                "&:focus-within": {
+                  background: "#FFFFFF",
+                  borderColor: "#928ddd",
+                  boxShadow: "0 0 0 3px rgba(146, 141, 221, 0.2)",
                 }
-              />
-            </CollapsibleSection>
-            <CollapsibleSection label="Help & support" fullWidth>
-              <NavigationItems
-                items={help.map((item) => ({
-                  to: item.url,
-                  target: "_blank",
-                  prefix: item.icon,
-                  children: item.label,
-                }))}
-              />
-            </CollapsibleSection>
-          </nav>
-          <PanelBanner>
-            <Text variant="titles">Inception is live</Text>
-            <Text color="subtle">
-              An AI-powered design tool to explore ideas and instantly generate
-              HTML/CSS for Webstudio Builder or any other platform.
-            </Text>
-            <Link
-              className={buttonStyle({
-                color: "gradient",
-              })}
-              underline="none"
-              href="https://wstd.us/inception"
-              target="_blank"
-              color="contrast"
+              }}
             >
-              Get started with Inception
-            </Link>
-          </PanelBanner>
+              <Flex align="center" gap="2" css={{ color: "#0F172A", flex: 1 }}>
+                <Search />
+              </Flex>
+              <Box
+                css={{
+                  padding: "2px 6px",
+                  background: "#FFFFFF",
+                  border: "1px solid #c3c1c1",
+                  borderRadius: "4px",
+                  fontSize: "10px",
+                  fontWeight: "700",
+                  color: "#0F172A",
+                  marginLeft: "auto",
+                }}
+              >
+                ⌘K
+              </Box>
+            </Box>
+          </Flex>
+
+          <Flex direction="column" grow css={{ overflowY: "auto", gap: theme.spacing[15] }}>
+            <nav style={{ display: "flex", flexDirection: "column", gap: theme.spacing[15] }}>
+              <CollapsibleSection label="Workspace" fullWidth>
+                <Box css={{ paddingTop: theme.spacing[4] }}>
+                  <NavigationItems
+                    items={
+                      view === "welcome" || hasProjects === false
+                        ? [
+                            {
+                              to: dashboardPath(),
+                              prefix: <ExtensionIcon size={18} />,
+                              children: "Welcome",
+                            },
+                          ]
+                        : [
+                            {
+                              to: dashboardPath("projects"),
+                              prefix: <BodyIcon size={18} />,
+                              children: "Projects",
+                            },
+                            {
+                              to: dashboardPath("templates"),
+                              prefix: <ExtensionIcon size={18} />,
+                              children: "Starter templates",
+                            },
+                          ]
+                    }
+                  />
+                </Box>
+              </CollapsibleSection>
+              <CollapsibleSection label="Help & support" fullWidth>
+                <Box css={{ paddingTop: theme.spacing[4] }}>
+                  <NavigationItems
+                    items={help.map((item) => ({
+                      to: item.url,
+                      target: "_blank",
+                      prefix: item.icon,
+                      children: item.label,
+                    }))}
+                  />
+                </Box>
+              </CollapsibleSection>
+            </nav>
+          </Flex>
+
+          <Flex direction="column" css={{ padding: theme.spacing[4], gap: theme.spacing[6] }}>
+            <PanelBanner
+               css={{
+                 background: "linear-gradient(135deg, #e7e9ef 0%, #cac8f9 100%)",
+                 borderRadius: "18px",
+                 padding: theme.spacing[5],
+                 border: "1px solid #b2aef2",
+                 position: "relative",
+                 overflow: "hidden",
+                 "&::before": {
+                   content: '""',
+                   position: "absolute",
+                   top: 0,
+                   left: 0,
+                   right: 0,
+                   height: "1px",
+                   background: "linear-gradient(to right, transparent, #FFFFFF, transparent)",
+                   opacity: 0.8,
+                 }
+               }}
+            >
+              <Text variant="titles" css={{ color: "#000000", marginBottom: theme.spacing[1], fontSize: "13px", fontWeight: "700" }}>Inception is live</Text>
+              <Text css={{ color: "#000000", opacity: 0.9, fontSize: "11.5px", lineHeight: "1.6", marginBottom: theme.spacing[4] }}>
+                AI-powered design tool to instantly generate HTML/CSS.
+              </Text>
+              <Link
+                className={buttonStyle({
+                  color: "gradient",
+                })}
+                underline="none"
+                href="https://wstd.us/inception"
+                target="_blank"
+                css={{
+                  width: "100%",
+                  justifyContent: "center",
+                  fontSize: "12px",
+                  height: "34px",
+                  borderRadius: "10px",
+                  background: "#928ddd",
+                  color: "#FFFFFF",
+                  boxShadow: "0 4px 10px rgba(146, 141, 221, 0.3)",
+                  transition: "all 0.2s ease",
+                  border: "none",
+                  "&:hover": {
+                    background: "#b2aef2",
+                    transform: "translateY(-1px)",
+                    boxShadow: "0 6px 14px rgba(178, 174, 242, 0.4)",
+                    color: "#000000",
+                  }
+                }}
+              >
+                Get started
+              </Link>
+            </PanelBanner>
+
+            <Flex
+              css={{
+                borderTop: "1px solid rgba(0, 0, 0, 0.05)",
+                paddingTop: theme.spacing[6],
+                marginTop: theme.spacing[2],
+              }}
+            >
+              <ProfileMenu user={user} userPlanFeatures={userPlanFeatures} />
+            </Flex>
+          </Flex>
         </Flex>
         {view === "projects" && (
           <Projects

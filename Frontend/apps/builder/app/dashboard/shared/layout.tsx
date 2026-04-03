@@ -14,11 +14,13 @@ export const Header = ({
       css={{
         paddingInline:
           variant === "aside" ? theme.spacing[5] : theme.spacing[13],
-        height: theme.spacing[19],
+        height: "96px",
         position: "sticky",
         top: 0,
-        background: theme.colors.backgroundPanel,
+        background: variant === "aside" ? "transparent" : "rgba(255, 255, 255, 0.6)",
+        backdropFilter: variant === "main" ? "blur(30px) saturate(150%)" : "none",
         zIndex: 1,
+        borderBottom: variant === "main" ? "1px solid #c3c1c1" : "none",
       }}
       {...props}
     />
@@ -36,6 +38,8 @@ export const Main = (props: ComponentProps<typeof Flex>) => {
         overflow: "auto",
         // Keeps dialogs on top of the main content
         isolation: "isolate",
+        background: "#FFFFFF",
+        position: "relative",
       }}
       {...props}
     />
