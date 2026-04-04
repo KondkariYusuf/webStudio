@@ -17,6 +17,31 @@ export const Search = () => {
 
   return (
     <SearchField
+      css={{
+        background: "#141414",
+        border: "1px solid #27272A",
+        borderRadius: "8px",
+        $$foregroundSubtle: "#A1A1AA",
+        "& *": {
+          "--colors-foregroundSubtle": "#A1A1AA"
+        },
+        "&:hover": {
+          borderColor: "#3F3F46"
+        },
+        "&:focus-within": {
+          borderColor: "#928ddd"
+        },
+        "& [data-input-field-input]": {
+          color: "#FFFFFF",
+          "&::placeholder": {
+            color: "#A1A1AA",
+            opacity: 1
+          }
+        },
+        "& svg": {
+          color: "#A1A1AA !important"
+        }
+      }}
       value={searchParams.get("q") ?? undefined}
       onChange={(event) => {
         const value = event.currentTarget.value.trim();

@@ -133,7 +133,27 @@ export const SortSelect = ({ value, onValueChange }: SortSelectProps) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button color="ghost" prefix={sortIcon} suffix={<ChevronDownIcon />}>
+        <Button 
+          color="ghost" 
+          prefix={sortIcon} 
+          suffix={<ChevronDownIcon />}
+          css={{
+            color: "#A1A1AA",
+            transition: "all 0.2s ease",
+            borderRadius: "8px",
+            "&:hover": {
+              background: "#27272A",
+              color: "#FFFFFF",
+            },
+            "&[data-state=open]": {
+              background: "#27272A",
+              color: "#FFFFFF",
+            },
+            "&:focus-visible": {
+              boxShadow: "0 0 0 2px #141414, 0 0 0 4px #928ddd",
+            }
+          }}
+        >
           {sortLabel}
         </Button>
       </DropdownMenuTrigger>

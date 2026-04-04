@@ -32,6 +32,8 @@ import { Search } from "./search/search-field";
 const globalStyles = globalCss({
   body: {
     margin: 0,
+    backgroundColor: "#0A0A0A",
+    color: "#FFFFFF",
   },
 });
 
@@ -87,25 +89,25 @@ const sidebarLinkStyle = css({
   borderRadius: "10px",
   outline: "none",
   transition: "all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1)",
-  color: "#64748B",
+  color: "#A1A1AA",
   fontWeight: 500,
   fontSize: "13px",
 
   "&:focus-visible": {
-    boxShadow: `0 0 0 2px #FFFFFF, 0 0 0 4px #928ddd`,
+    boxShadow: `0 0 0 2px #141414, 0 0 0 4px #928ddd`,
   },
   "&:hover": {
-    background: "#e7e9ef",
-    color: "#0F172A",
+    background: "#27272A",
+    color: "#FFFFFF",
   },
   "&[aria-current=page]": {
-    background: "#FFFFFF",
-    color: "#928ddd",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.02)",
-    border: "1px solid #c3c1c1",
+    background: "#1E1E24",
+    color: "#b2aef2",
+    boxShadow: "0 1px 3px rgba(0,0,0,0.2), 0 2px 8px rgba(0,0,0,0.1)",
+    border: "1px solid #3F3F46",
     fontWeight: 600,
     "& svg": {
-       color: "#928ddd",
+       color: "#b2aef2",
        transform: "scale(1.05)",
     }
   }
@@ -196,10 +198,10 @@ export const Dashboard = () => {
           shrink={false}
           css={{
             width: "280px",
-            borderRight: "1px solid #c3c1c1",
+            borderRight: "1px solid #27272A",
             position: "sticky",
             top: 0,
-            background: "#FFFFFF",
+            background: "#141414",
           }}
         >
           <Flex
@@ -232,7 +234,7 @@ export const Dashboard = () => {
               css={{
                 fontSize: "18px",
                 fontWeight: "700",
-                color: "#0F172A",
+                color: "#FFFFFF",
                 letterSpacing: "-0.04em",
               }}
             >
@@ -260,35 +262,35 @@ export const Dashboard = () => {
                 justifyContent: "between",
                 height: "36px",
                 width: "100%",
-                background: "#e7e9ef",
-                border: "1px solid #c3c1c1",
+                background: "#27272A",
+                border: "1px solid #3F3F46",
                 borderRadius: "10px",
                 paddingInline: theme.spacing[3],
                 cursor: "text",
                 transition: "all 0.2s ease",
                 "&:hover": {
-                  background: "#cac8f9",
-                  borderColor: "#b2aef2",
+                  background: "#3F3F46",
+                  borderColor: "#52525B",
                 },
                 "&:focus-within": {
-                  background: "#FFFFFF",
-                  borderColor: "#928ddd",
+                  background: "#1E1E24",
+                  borderColor: "#b2aef2",
                   boxShadow: "0 0 0 3px rgba(146, 141, 221, 0.2)",
                 }
               }}
             >
-              <Flex align="center" gap="2" css={{ color: "#0F172A", flex: 1 }}>
+              <Flex align="center" gap="2" css={{ color: "#A1A1AA", flex: 1 }}>
                 <Search />
               </Flex>
               <Box
                 css={{
                   padding: "2px 6px",
-                  background: "#FFFFFF",
-                  border: "1px solid #c3c1c1",
+                  background: "#141414",
+                  border: "1px solid #3F3F46",
                   borderRadius: "4px",
                   fontSize: "10px",
                   fontWeight: "700",
-                  color: "#0F172A",
+                  color: "#FFFFFF",
                   marginLeft: "auto",
                 }}
               >
@@ -297,8 +299,30 @@ export const Dashboard = () => {
             </Box>
           </Flex>
 
-          <Flex direction="column" grow css={{ overflowY: "auto", gap: theme.spacing[15] }}>
-            <nav style={{ display: "flex", flexDirection: "column", gap: theme.spacing[15] }}>
+          <Flex 
+            direction="column" 
+            grow 
+            css={{ 
+              overflowY: "auto", 
+              gap: theme.spacing[15],
+              msOverflowStyle: "none",  // IE and Edge
+              scrollbarWidth: "none",  // Firefox
+              "&::-webkit-scrollbar": {
+                display: "none"
+              }
+            }}
+          >
+            <Box css={{ 
+              display: "flex", 
+              flexDirection: "column", 
+              gap: theme.spacing[15],
+              $$foregroundMain: "#A1A1AA",
+              $$foregroundIconMain: "#A1A1AA",
+              "& *": {
+                "--colors-foregroundMain": "#A1A1AA",
+                "--colors-foregroundIconMain": "#A1A1AA"
+              }
+             }}>
               <CollapsibleSection label="Workspace" fullWidth>
                 <Box css={{ paddingTop: theme.spacing[4] }}>
                   <NavigationItems
@@ -339,16 +363,16 @@ export const Dashboard = () => {
                   />
                 </Box>
               </CollapsibleSection>
-            </nav>
+            </Box>
           </Flex>
 
           <Flex direction="column" css={{ padding: theme.spacing[4], gap: theme.spacing[6] }}>
             <PanelBanner
                css={{
-                 background: "linear-gradient(135deg, #e7e9ef 0%, #cac8f9 100%)",
+                 background: "linear-gradient(135deg, #1E1E24 0%, #27272A 100%)",
                  borderRadius: "18px",
                  padding: theme.spacing[5],
-                 border: "1px solid #b2aef2",
+                 border: "1px solid #3F3F46",
                  position: "relative",
                  overflow: "hidden",
                  "&::before": {
@@ -359,12 +383,12 @@ export const Dashboard = () => {
                    right: 0,
                    height: "1px",
                    background: "linear-gradient(to right, transparent, #FFFFFF, transparent)",
-                   opacity: 0.8,
+                   opacity: 0.1,
                  }
                }}
             >
-              <Text variant="titles" css={{ color: "#000000", marginBottom: theme.spacing[1], fontSize: "13px", fontWeight: "700" }}>Inception is live</Text>
-              <Text css={{ color: "#000000", opacity: 0.9, fontSize: "11.5px", lineHeight: "1.6", marginBottom: theme.spacing[4] }}>
+              <Text variant="titles" css={{ color: "#FFFFFF", marginBottom: theme.spacing[1], fontSize: "13px", fontWeight: "700" }}>Inception is live</Text>
+              <Text css={{ color: "#A1A1AA", opacity: 0.9, fontSize: "11.5px", lineHeight: "1.6", marginBottom: theme.spacing[4] }}>
                 AI-powered design tool to instantly generate HTML/CSS.
               </Text>
               <Link
@@ -399,7 +423,7 @@ export const Dashboard = () => {
 
             <Flex
               css={{
-                borderTop: "1px solid rgba(0, 0, 0, 0.05)",
+                borderTop: "1px solid #27272A",
                 paddingTop: theme.spacing[6],
                 marginTop: theme.spacing[2],
               }}

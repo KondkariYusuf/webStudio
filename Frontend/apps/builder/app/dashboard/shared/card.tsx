@@ -22,18 +22,18 @@ const cardStyle = css({
   alignItems: "center",
   flexShrink: 0,
   outline: "none",
-  background: "#FFFFFF",
+  background: "#141414",
   borderRadius: "12px",
-  boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05)",
-  border: "1px solid #c3c1c1",
+  boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.5), 0 2px 4px -2px rgb(0 0 0 / 0.5)",
+  border: "1px solid #27272A",
   transition: "all 0.2s ease-in-out",
   "&:hover": {
     transform: "translateY(-4px)",
-    boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
+    boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.6), 0 4px 6px -4px rgb(0 0 0 / 0.6)",
   },
   "&:focus-within, &[aria-selected=true]": {
     [borderColorVar]: "#928ddd", // Deep purple palette focus color
-    boxShadow: "0 0 0 2px #FFFFFF, 0 0 0 4px #928ddd",
+    boxShadow: "0 0 0 2px #141414, 0 0 0 4px #928ddd",
   },
 });
 
@@ -60,7 +60,7 @@ export const CardContent = styled(Grid, {
     content: '""',
     position: "absolute",
     inset: 0,
-    borderBottom: "1px solid #c3c1c1",
+    borderBottom: "1px solid #27272A",
     pointerEvents: "none",
   },
 });
@@ -70,7 +70,7 @@ export const CardFooter = styled(Flex, {
   flexShrink: 0,
   alignSelf: "stretch",
   flexGap: theme.spacing[3],
-  background: "#FFFFFF",
+  background: "#141414",
   borderBottomLeftRadius: "11px",
   borderBottomRightRadius: "11px",
   height: theme.spacing[20],

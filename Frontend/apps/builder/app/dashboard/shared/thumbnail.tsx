@@ -7,13 +7,16 @@ const abbrStyle = css(textVariants.brandThumbnailLargeDefault, {
   alignItems: "center",
   alignSelf: "center",
   minHeight: 0,
-  background: theme.colors.brandBackgroundProjectCardFront,
+  background: "linear-gradient(135deg, #b2aef2 0%, #928ddd 100%)",
   WebkitBackgroundClip: "text",
   backgroundClip: "text",
   color: "transparent",
   outline: "none",
   transition: "100ms",
-  "&:hover, &:focus": textVariants.brandThumbnailLargeHover,
+  "&:hover, &:focus": {
+     background: "linear-gradient(135deg, #ffffff 0%, #b2aef2 100%)",
+     WebkitBackgroundClip: "text",
+  }
 });
 
 // My Next Project > MN

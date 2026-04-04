@@ -125,7 +125,7 @@ export const Projects = (props: ProjectsProps) => {
           <Text
             as="h2"
             css={{
-              color: "#0F172A",
+              color: "#FFFFFF",
               fontWeight: "700",
               fontSize: "24px",
               letterSpacing: "-0.04em",
@@ -133,7 +133,7 @@ export const Projects = (props: ProjectsProps) => {
           >
             Projects
           </Text>
-          <Text css={{ color: "#64748B", fontSize: "14px" }}>
+          <Text css={{ color: "#A1A1AA", fontSize: "14px" }}>
             Manage and edit your web projects
           </Text>
         </div>
@@ -143,7 +143,7 @@ export const Projects = (props: ProjectsProps) => {
             value={viewMode}
             onValueChange={handleViewChange}
             css={{
-                background: "#e7e9ef",
+                background: "#27272A",
                 padding: "2px",
                 borderRadius: "8px",
             }}
@@ -154,8 +154,8 @@ export const Projects = (props: ProjectsProps) => {
               style={{
                   borderRadius: "6px",
                   border: "none",
-                  background: viewMode === "grid" ? "#FFFFFF" : "transparent",
-                  boxShadow: viewMode === "grid" ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
+                  background: viewMode === "grid" ? "#3F3F46" : "transparent",
+                  boxShadow: viewMode === "grid" ? "0 1px 3px rgba(0,0,0,0.5)" : "none",
               }}
             >
               <RepeatGridIcon />
@@ -166,8 +166,8 @@ export const Projects = (props: ProjectsProps) => {
               style={{
                   borderRadius: "6px",
                   border: "none",
-                  background: viewMode === "list" ? "#FFFFFF" : "transparent",
-                  boxShadow: viewMode === "list" ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
+                  background: viewMode === "list" ? "#3F3F46" : "transparent",
+                  boxShadow: viewMode === "list" ? "0 1px 3px rgba(0,0,0,0.5)" : "none",
               }}
             >
               <ListViewIcon />

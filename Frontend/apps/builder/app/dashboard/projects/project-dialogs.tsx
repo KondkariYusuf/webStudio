@@ -104,11 +104,11 @@ const DialogContent = ({
       >
         {description && (
           <DialogDescription asChild>
-            <Text as="p" css={{ marginBottom: theme.spacing["4"], color: "#64748B", fontSize: "14px", lineHeight: "1.5" }}>{description}</Text>
+            <Text as="p" css={{ marginBottom: theme.spacing["4"], color: "#A1A1AA", fontSize: "14px", lineHeight: "1.5" }}>{description}</Text>
           </DialogDescription>
         )}
         <Box css={{ marginBottom: theme.spacing["2"] }}>
-          {typeof label === "string" ? <Label css={{ fontWeight: 600, color: "#1e293b" }}>{label}</Label> : label}
+          {typeof label === "string" ? <Label css={{ fontWeight: 600, color: "#FFFFFF" }}>{label}</Label> : label}
         </Box>
         <InputField
           placeholder={placeholder}
@@ -123,21 +123,21 @@ const DialogContent = ({
           {errors && <Text color="destructive" css={{ fontSize: "12px" }}>{errors}</Text>}
         </Box>
       </Flex>
-      <DialogActions css={{ borderTop: "1px solid #e7e9ef", paddingTop: theme.spacing["4"], marginTop: theme.spacing["4"] }}>
+      <DialogActions css={{ borderTop: "1px solid #27272A", paddingTop: theme.spacing["4"], marginTop: theme.spacing["4"] }}>
         {primaryButton}
         <DialogClose asChild>
           <Button 
             color="ghost"
             css={{
               borderRadius: "8px",
-              color: "#64748B",
+              color: "#A1A1AA",
               fontSize: "14px",
               fontWeight: 500,
               padding: "8px 16px",
               transition: "all 0.2s ease",
               "&:hover": {
-                background: "#e7e9ef",
-                color: "#0F172A",
+                background: "#27272A",
+                color: "#FFFFFF",
               }
             }}
           >Cancel</Button>
@@ -216,7 +216,7 @@ export const CreateProject = ({
               transform: "translateY(0)",
             },
             "&:focus-visible": {
-              boxShadow: "0 0 0 2px #FFFFFF, 0 0 0 4px #928ddd",
+              boxShadow: "0 0 0 2px #141414, 0 0 0 4px #928ddd",
               outline: "none",
             }
           }}
@@ -252,7 +252,7 @@ export const CreateProject = ({
                 transform: "translateY(-1px)",
               },
               "&:focus-visible": {
-                boxShadow: "0 0 0 2px #ffffff, 0 0 0 4px #928ddd",
+                boxShadow: "0 0 0 2px #141414, 0 0 0 4px #928ddd",
               }
             }}
           >
@@ -340,7 +340,7 @@ export const RenameProjectDialog = ({
                 transform: "translateY(-1px)",
               },
               "&:focus-visible": {
-                boxShadow: "0 0 0 2px #ffffff, 0 0 0 4px #928ddd",
+                boxShadow: "0 0 0 2px #141414, 0 0 0 4px #928ddd",
               }
             }}
           >

@@ -17,10 +17,10 @@ export const Header = ({
         height: "96px",
         position: "sticky",
         top: 0,
-        background: variant === "aside" ? "transparent" : "rgba(255, 255, 255, 0.6)",
+        background: variant === "aside" ? "transparent" : "rgba(10, 10, 10, 0.7)",
         backdropFilter: variant === "main" ? "blur(30px) saturate(150%)" : "none",
         zIndex: 1,
-        borderBottom: variant === "main" ? "1px solid #c3c1c1" : "none",
+        borderBottom: variant === "main" ? "1px solid #27272A" : "none",
       }}
       {...props}
     />
@@ -38,7 +38,7 @@ export const Main = (props: ComponentProps<typeof Flex>) => {
         overflow: "auto",
         // Keeps dialogs on top of the main content
         isolation: "isolate",
-        background: "#FFFFFF",
+        background: "#0A0A0A",
         position: "relative",
       }}
       {...props}

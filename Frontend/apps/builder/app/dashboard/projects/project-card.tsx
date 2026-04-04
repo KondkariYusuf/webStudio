@@ -127,18 +127,18 @@ export const ProjectCard = ({
       hidden={isHidden}
       css={{
         transition: "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
-        border: "1px solid rgba(226, 232, 240, 0.6)",
+        border: "1px solid #27272A",
         borderRadius: "18px",
         overflow: "hidden",
-        background: "#FFFFFF",
+        background: "#141414",
         "&:hover": {
           transform: "translateY(-8px)",
           boxShadow: `
-            0 10px 15px -3px rgba(0, 0, 0, 0.02),
-            0 25px 40px -12px rgba(0, 0, 0, 0.05),
-            0 0 0 1px rgba(124, 58, 237, 0.05)
+            0 10px 15px -3px rgba(0, 0, 0, 0.1),
+            0 25px 40px -12px rgba(0, 0, 0, 0.2),
+            0 0 0 1px rgba(146, 141, 221, 0.15)
           `,
-          borderColor: "rgba(124, 58, 237, 0.2)",
+          borderColor: "rgba(146, 141, 221, 0.4)",
         },
       }}
       {...props}
@@ -146,7 +146,7 @@ export const ProjectCard = ({
       <CardContent
         css={{
           aspectRatio: "16/10",
-          background: "linear-gradient(135deg, #ffffff 0%, #e7e9ef 100%)",
+          background: "linear-gradient(135deg, #141414 0%, #1e1e1e 100%)",
           position: "relative",
           overflow: "hidden",
           [`&:hover`]: {
@@ -205,8 +205,8 @@ export const ProjectCard = ({
         css={{
           padding: "16px",
           gap: "12px",
-          background: "#FFFFFF",
-          borderTop: "1px solid #e7e9ef",
+          background: "#141414",
+          borderTop: "1px solid #27272A",
         }}
       >
         <Flex direction="column" gap="1" grow overflow="hidden">
@@ -217,7 +217,7 @@ export const ProjectCard = ({
               truncate
               css={{
                  textTransform: "none",
-                 color: "#0F172A",
+                 color: "#FFFFFF",
                  fontWeight: "600",
                  fontSize: "14px",
                  letterSpacing: "-0.01em"
@@ -228,7 +228,7 @@ export const ProjectCard = ({
             <Tooltip
               variant="wrapped"
               content={
-                <Text variant="small" css={{ color: "#64748B" }}>
+                <Text variant="small" css={{ color: "#A1A1AA" }}>
                   Created: {formatDate(createdAt)}
                   {latestBuildVirtual?.updatedAt && (
                     <>
@@ -245,7 +245,7 @@ export const ProjectCard = ({
                 </Text>
               }
             >
-              <Box css={{ color: "#94A3B8", cursor: "help", opacity: 0.6 }}>
+              <Box css={{ color: "#A1A1AA", cursor: "help", opacity: 0.6 }}>
                 <InfoCircleIcon size={12} className={infoIconStyle()} />
               </Box>
             </Tooltip>
@@ -253,7 +253,7 @@ export const ProjectCard = ({
           {isPublished ? (
             <PublishedLink domain={displayDomain} tabIndex={-1} />
           ) : (
-            <Text css={{ color: "#94A3B8", fontSize: "12px" }}>Not published</Text>
+            <Text css={{ color: "#A1A1AA", fontSize: "12px" }}>Not published</Text>
           )}
         </Flex>
         <ProjectMenu projectId={id} onOpenChange={setOpenDialog} />

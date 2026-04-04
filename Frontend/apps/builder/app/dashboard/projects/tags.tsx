@@ -72,7 +72,7 @@ const DeleteConfirmationDialog = ({
               </Button>
             </DialogClose>
             <DialogClose asChild>
-              <Button color="ghost" css={{ borderRadius: "8px", "&:hover": { background: "#e7e9ef" } }}>Cancel</Button>
+              <Button color="ghost" css={{ borderRadius: "8px", "&:hover": { background: "#27272A" } }}>Cancel</Button>
             </DialogClose>
           </Flex>
         </Flex>
@@ -259,7 +259,7 @@ const TagEdit = ({
           minLength={1}
         />
       </Grid>
-      <DialogActions css={{ borderTop: "1px solid #e7e9ef", paddingTop: theme.spacing["4"], marginTop: theme.spacing["4"] }}>
+      <DialogActions css={{ borderTop: "1px solid #27272A", paddingTop: theme.spacing["4"], marginTop: theme.spacing["4"] }}>
         <Button 
           type="submit"
           css={{
@@ -279,7 +279,7 @@ const TagEdit = ({
               transform: "translateY(-1px)",
             },
             "&:focus-visible": {
-              boxShadow: "0 0 0 2px #ffffff, 0 0 0 4px #928ddd",
+              boxShadow: "0 0 0 2px #141414, 0 0 0 4px #928ddd",
             }
           }}
         >
@@ -293,14 +293,14 @@ const TagEdit = ({
           }}
           css={{
             borderRadius: "8px",
-            color: "#64748B",
+            color: "#A1A1AA",
             fontSize: "14px",
             fontWeight: 500,
             padding: "8px 16px",
             transition: "all 0.2s ease",
             "&:hover": {
-              background: "#e7e9ef",
-              color: "#0F172A",
+              background: "#27272A",
+              color: "#FFFFFF",
             }
           }}
         >

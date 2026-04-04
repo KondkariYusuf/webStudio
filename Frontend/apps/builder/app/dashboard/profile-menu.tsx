@@ -71,12 +71,12 @@ const ProfileButton = forwardRef<
         border: "none",
         transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
         "&:hover": {
-          background: "rgba(241, 245, 249, 0.8)",
+          background: "rgba(39, 39, 42, 0.8)",
           transform: "translateY(-1px)",
         },
         "&[data-state=open]": {
-          background: "rgba(241, 245, 249, 1)",
-          boxShadow: "0 4px 12px rgba(0,0,0,0.03)",
+          background: "rgba(39, 39, 42, 1)",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
         }
       }}
     >
@@ -105,7 +105,7 @@ const ProfileButton = forwardRef<
           css={{
             fontSize: "13.5px",
             fontWeight: "600",
-            color: "#0F172A",
+            color: "#FFFFFF",
             whiteSpace: "nowrap",
             overflow: "hidden",
             textOverflow: "ellipsis",
@@ -120,7 +120,7 @@ const ProfileButton = forwardRef<
         <Text
           css={{
             fontSize: "11px",
-            color: "#64748B",
+            color: "#A1A1AA",
             whiteSpace: "nowrap",
             overflow: "hidden",
             textOverflow: "ellipsis",
@@ -133,7 +133,7 @@ const ProfileButton = forwardRef<
           {email}
         </Text>
       </Flex>
-      <ChevronDownIcon size={12} style={{ color: "#94A3B8", marginLeft: "auto" }} />
+      <ChevronDownIcon size={12} style={{ color: "#A1A1AA", marginLeft: "auto" }} />
     </Button>
   );
 });
@@ -166,7 +166,7 @@ export const ProfileMenu = ({
             <Text weight="bold" css={{ display: "block", marginBottom: "2px" }}>
                {user.username ?? (user.email ? user.email.split("@")[0] : defaultUserName)}
             </Text>
-            <Text variant="small" css={{ color: "#64748B", fontSize: "11px" }}>{user.email}</Text>
+            <Text variant="small" css={{ color: "#A1A1AA", fontSize: "11px" }}>{user.email}</Text>
           </Flex>
         </DropdownMenuLabel>
         
