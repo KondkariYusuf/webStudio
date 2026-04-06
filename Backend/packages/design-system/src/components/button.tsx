@@ -37,9 +37,9 @@ const backgrounds: Record<ButtonColor, string> = {
   destructive: theme.colors.backgroundDestructiveMain,
   positive: theme.colors.backgroundSuccessMain,
   ghost: theme.colors.backgroundHover,
-  dark: theme.colors.backgroundTopbar,
+  dark: theme.colors.backgroundNeutralAccent,
   gradient: theme.colors.backgroundGradientPrimary,
-  "dark-ghost": theme.colors.backgroundTopbar,
+  "dark-ghost": theme.colors.backgroundNeutralAccent,
 };
 
 const foregrounds: Record<ButtonColor, string> = {

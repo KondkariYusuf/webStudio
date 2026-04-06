@@ -14,7 +14,7 @@ import {
   buttonStyle,
   Box,
 } from "@webstudio-is/design-system";
-import { BodyIcon, ExtensionIcon } from "@webstudio-is/icons";
+import { BodyIcon, ExtensionIcon, GearIcon } from "@webstudio-is/icons";
 import { NavLink, useLocation, useRevalidator } from "@remix-run/react";
 import { atom } from "nanostores";
 import { useStore } from "@nanostores/react";
@@ -28,6 +28,7 @@ import { help } from "~/shared/help";
 import { SearchResults } from "./search/search-results";
 import type { DashboardData } from "./shared/types";
 import { Search } from "./search/search-field";
+import { AdminPanel } from "./admin/admin-panel";
 
 const globalStyles = globalCss({
   body: {
@@ -157,6 +158,10 @@ export const DashboardSetup = ({ data }: { data: DashboardData }) => {
 const getView = (pathname: string, hasProjects: boolean) => {
   if (pathname === dashboardPath("search")) {
     return "search";
+  }
+
+  if (pathname === "/dashboard/admin") {
+    return "admin";
   }
 
   if (hasProjects === false) {
@@ -351,6 +356,21 @@ export const Dashboard = () => {
                   />
                 </Box>
               </CollapsibleSection>
+              {user.role === "admin" && (
+                <CollapsibleSection label="Administration" fullWidth>
+                  <Box css={{ paddingTop: theme.spacing[4] }}>
+                    <NavigationItems
+                      items={[
+                        {
+                          to: "/dashboard/admin",
+                          prefix: <GearIcon size={18} />,
+                          children: "Manage Users",
+                        },
+                      ]}
+                    />
+                  </Box>
+                </CollapsibleSection>
+              )}
               <CollapsibleSection label="Help & support" fullWidth>
                 <Box css={{ paddingTop: theme.spacing[4] }}>
                   <NavigationItems
@@ -443,6 +463,21 @@ export const Dashboard = () => {
         {view === "templates" && <Templates projects={templates} />}
         {view === "welcome" && <Templates projects={templates} welcome />}
         {view === "search" && <SearchResults {...data} />}
+        {view === "admin" && (
+          <Flex css={{ flex: 1, overflow: "auto" }}>
+            <Flex
+              direction="column"
+              css={{
+                width: "100%",
+                maxWidth: "900px",
+                margin: "0 auto",
+                padding: theme.spacing[10],
+              }}
+            >
+              <AdminPanel currentUserId={user.id} />
+            </Flex>
+          </Flex>
+        )}
       </Flex>
       <CloneProject projectToClone={projectToClone} />
       <Toaster />

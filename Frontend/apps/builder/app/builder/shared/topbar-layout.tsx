@@ -15,7 +15,8 @@ const topbarContainerStyle = css({
   background: theme.colors.backgroundTopbar,
   height: theme.spacing[15],
   paddingRight: theme.panel.paddingInline,
-  color: theme.colors.foregroundContrastMain,
+  color: theme.colors.foregroundMain,
+  borderBottom: `1px solid ${theme.colors.borderMain}`,
 });
 
 type TopbarLayoutProps = {
