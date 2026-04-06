@@ -18,28 +18,28 @@ export const Search = () => {
   return (
     <SearchField
       css={{
-        background: "#141414",
-        border: "1px solid #27272A",
+        background: "#F1F5F9",
+        border: "1px solid #E2E8F0",
         borderRadius: "8px",
-        $$foregroundSubtle: "#A1A1AA",
+        $$foregroundSubtle: "#64748B",
         "& *": {
-          "--colors-foregroundSubtle": "#A1A1AA"
+          "--colors-foregroundSubtle": "#64748B"
         },
         "&:hover": {
-          borderColor: "#3F3F46"
+          borderColor: "#CBD5E1"
         },
         "&:focus-within": {
-          borderColor: "#928ddd"
+          borderColor: "#2b00cc"
         },
         "& [data-input-field-input]": {
-          color: "#FFFFFF",
+          color: "#0F172A",
           "&::placeholder": {
-            color: "#A1A1AA",
+            color: "#94A3B8",
             opacity: 1
           }
         },
         "& svg": {
-          color: "#A1A1AA !important"
+          color: "#64748B !important"
         }
       }}
       value={searchParams.get("q") ?? undefined}

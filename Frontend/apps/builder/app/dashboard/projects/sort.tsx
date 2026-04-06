@@ -138,19 +138,19 @@ export const SortSelect = ({ value, onValueChange }: SortSelectProps) => {
           prefix={sortIcon} 
           suffix={<ChevronDownIcon />}
           css={{
-            color: "#A1A1AA",
+            color: "#64748B",
             transition: "all 0.2s ease",
             borderRadius: "8px",
             "&:hover": {
-              background: "#27272A",
-              color: "#FFFFFF",
+              background: "#F1F5F9",
+              color: "#0F172A",
             },
             "&[data-state=open]": {
-              background: "#27272A",
-              color: "#FFFFFF",
+              background: "#F1F5F9",
+              color: "#0F172A",
             },
             "&:focus-visible": {
-              boxShadow: "0 0 0 2px #141414, 0 0 0 4px #928ddd",
+              boxShadow: "0 0 0 2px #FFFFFF, 0 0 0 4px #2b00cc",
             }
           }}
         >

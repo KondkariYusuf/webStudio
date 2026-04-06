@@ -72,7 +72,7 @@ const DeleteConfirmationDialog = ({
               </Button>
             </DialogClose>
             <DialogClose asChild>
-              <Button color="ghost" css={{ borderRadius: "8px", "&:hover": { background: "#27272A" } }}>Cancel</Button>
+              <Button color="ghost" css={{ borderRadius: "8px", "&:hover": { background: "#F1F5F9" } }}>Cancel</Button>
             </DialogClose>
           </Flex>
         </Flex>
@@ -259,27 +259,27 @@ const TagEdit = ({
           minLength={1}
         />
       </Grid>
-      <DialogActions css={{ borderTop: "1px solid #27272A", paddingTop: theme.spacing["4"], marginTop: theme.spacing["4"] }}>
+      <DialogActions css={{ borderTop: "1px solid #E2E8F0", paddingTop: theme.spacing["4"], marginTop: theme.spacing["4"] }}>
         <Button 
           type="submit"
           css={{
             borderRadius: "8px",
-            background: "#928ddd",
+            background: "#2b00cc",
             color: "#ffffff",
             fontSize: "14px",
             fontWeight: 600,
             padding: "8px 16px",
             border: "none",
-            boxShadow: "0 4px 10px rgba(146, 141, 221, 0.2)",
+            boxShadow: "0 4px 10px rgba(43, 0, 204, 0.2)",
             transition: "all 0.2s ease",
             "&:hover": {
-              background: "#b2aef2",
-              boxShadow: "0 6px 14px rgba(178, 174, 242, 0.4)",
-              color: "#000000",
+              background: "#2200a3",
+              boxShadow: "0 6px 14px rgba(34, 0, 163, 0.3)",
+              color: "#FFFFFF",
               transform: "translateY(-1px)",
             },
             "&:focus-visible": {
-              boxShadow: "0 0 0 2px #141414, 0 0 0 4px #928ddd",
+              boxShadow: "0 0 0 2px #FFFFFF, 0 0 0 4px #2b00cc",
             }
           }}
         >
@@ -293,14 +293,14 @@ const TagEdit = ({
           }}
           css={{
             borderRadius: "8px",
-            color: "#A1A1AA",
+            color: "#64748B",
             fontSize: "14px",
             fontWeight: 500,
             padding: "8px 16px",
             transition: "all 0.2s ease",
             "&:hover": {
-              background: "#27272A",
-              color: "#FFFFFF",
+              background: "#F1F5F9",
+              color: "#0F172A",
             }
           }}
         >

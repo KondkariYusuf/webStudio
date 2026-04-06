@@ -7,14 +7,14 @@ const abbrStyle = css(textVariants.brandThumbnailLargeDefault, {
   alignItems: "center",
   alignSelf: "center",
   minHeight: 0,
-  background: "linear-gradient(135deg, #b2aef2 0%, #928ddd 100%)",
+  background: "linear-gradient(135deg, #4411dd 0%, #2b00cc 100%)",
   WebkitBackgroundClip: "text",
   backgroundClip: "text",
   color: "transparent",
   outline: "none",
   transition: "100ms",
   "&:hover, &:focus": {
-     background: "linear-gradient(135deg, #ffffff 0%, #b2aef2 100%)",
+     background: "linear-gradient(135deg, #2200a3 0%, #4411dd 100%)",
      WebkitBackgroundClip: "text",
   }
 });
