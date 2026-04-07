@@ -53,6 +53,7 @@ const PublishedLink = ({
 type ProjectWithExtras = DashboardProject & {
   domainsVirtual?: Array<{ domain: string; status: string; verified: boolean }>;
   previewImageAsset?: { name: string };
+  accessLevel?: "own" | "view" | "edit";
 };
 
 type ProjectCardProps = {
@@ -80,6 +81,7 @@ export const ProjectCard = ({
     previewImageAsset,
     tags,
     domainsVirtual,
+    accessLevel = "own",
   } = project;
   // Determine which domain to display: custom domain if available, otherwise wstd subdomain
   const customDomain = domainsVirtual?.find(
@@ -256,7 +258,11 @@ export const ProjectCard = ({
             <Text css={{ color: "#64748B", fontSize: "12px" }}>Not published</Text>
           )}
         </Flex>
-        <ProjectMenu projectId={id} onOpenChange={setOpenDialog} />
+        <ProjectMenu
+          projectId={id}
+          onOpenChange={setOpenDialog}
+          accessLevel={accessLevel}
+        />
       </CardFooter>
       <ProjectDialogs
         projectId={id}

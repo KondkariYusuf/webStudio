@@ -28,18 +28,42 @@ const check = async (
   const { subjectSet } = input;
 
   if (subjectSet.namespace === "User") {
-    // We check only if the user is the owner of the project
-    const row = await postgrestClient
+    const ownerRow = await postgrestClient
       .from("Project")
       .select("id")
       .eq("id", input.id)
       .eq("userId", subjectSet.id)
       .maybeSingle();
-    if (row.error) {
-      throw row.error;
+    if (ownerRow.error) {
+      throw ownerRow.error;
     }
 
-    return { allowed: row.data !== null };
+    if (ownerRow.data !== null) {
+      return { allowed: true };
+    }
+
+    if (input.permit === "own" || input.permit === "admin" || input.permit === "build") {
+      return { allowed: false };
+    }
+
+    const accessLevelToRelations: Record<Exclude<AuthPermit, "own" | "admin" | "build">, string[]> = {
+      view: ["view", "edit"],
+      edit: ["edit"],
+    };
+
+    const sharedAccessRow = await postgrestClient
+      .from("UserProjectAccess")
+      .select("id")
+      .eq("projectId", input.id)
+      .eq("userId", subjectSet.id)
+      .in("accessLevel", accessLevelToRelations[input.permit])
+      .maybeSingle();
+
+    if (sharedAccessRow.error) {
+      throw sharedAccessRow.error;
+    }
+
+    return { allowed: sharedAccessRow.data !== null };
   }
 
   if (input.permit === "own") {

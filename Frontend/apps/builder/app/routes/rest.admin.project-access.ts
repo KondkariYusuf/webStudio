@@ -9,38 +9,77 @@ import {
   getProjectAccessList,
   grantProjectAccess,
   revokeProjectAccess,
+  getAllProjectsForAdmin,
   type AccessLevel,
 } from "~/shared/db/project-access.server";
+
+const jsonResponse = (
+  body: unknown,
+  init?: ResponseInit
+) =>
+  new Response(JSON.stringify(body), {
+    ...init,
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+      ...(init?.headers ?? {}),
+    },
+  });
+
+const getRequestData = async (request: Request) => {
+  const contentType = request.headers.get("content-type") ?? "";
+
+  if (contentType.includes("application/json")) {
+    const body = await request.json();
+    return {
+      action: typeof body?.action === "string" ? body.action : undefined,
+      values: body,
+    };
+  }
+
+  const formData = await request.formData();
+
+  return {
+    action: formData.get("action")?.toString(),
+    values: {
+      action: formData.get("action")?.toString(),
+      userId: formData.get("userId")?.toString(),
+      projectId: formData.get("projectId")?.toString(),
+      accessLevel: formData.get("accessLevel")?.toString(),
+    },
+  };
+};
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   try {
     const user = await findAuthenticatedUser(request);
     if (!user) {
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
+      return jsonResponse({ error: "Unauthorized" }, { status: 401 });
     }
 
     const context = await createContext(request);
     const fullUser = await getUserById(context, user.id);
 
     if (fullUser.role !== "admin") {
-      return Response.json({ error: "Forbidden: Admin only" }, { status: 403 });
+      return jsonResponse({ error: "Forbidden: Admin only" }, { status: 403 });
     }
 
     const url = new URL(request.url);
     const projectId = url.searchParams.get("projectId");
 
+    if (projectId === "all") {
+      const projects = await getAllProjectsForAdmin(context);
+      return jsonResponse({ projects });
+    }
+
     if (!projectId) {
-      return Response.json(
-        { error: "projectId is required" },
-        { status: 400 }
-      );
+      return jsonResponse({ error: "projectId is required" }, { status: 400 });
     }
 
     const accessList = await getProjectAccessList(context, projectId);
-    return Response.json({ accessList });
+    return jsonResponse({ accessList });
   } catch (error) {
     console.error("[RBAC] Project access loader error:", error);
-    return Response.json(
+    return jsonResponse(
       { error: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
     );
@@ -51,32 +90,37 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   try {
     const user = await findAuthenticatedUser(request);
     if (!user) {
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
+      return jsonResponse({ error: "Unauthorized" }, { status: 401 });
     }
 
     const context = await createContext(request);
     const fullUser = await getUserById(context, user.id);
 
     if (fullUser.role !== "admin") {
-      return Response.json({ error: "Forbidden: Admin only" }, { status: 403 });
+      return jsonResponse({ error: "Forbidden: Admin only" }, { status: 403 });
     }
 
-    const formData = await request.formData();
-    const actionType = formData.get("action")?.toString();
+    const { action, values } = await getRequestData(request);
+    const actionType = action;
 
     if (actionType === "grant") {
-      const userId = formData.get("userId")?.toString();
-      const projectId = formData.get("projectId")?.toString();
-      const accessLevel = formData.get("accessLevel")?.toString() as AccessLevel;
+      const userId =
+        typeof values?.userId === "string" ? values.userId : undefined;
+      const projectId =
+        typeof values?.projectId === "string" ? values.projectId : undefined;
+      const accessLevel =
+        typeof values?.accessLevel === "string"
+          ? (values.accessLevel as AccessLevel)
+          : undefined;
 
       if (!userId || !projectId || !accessLevel) {
-        return Response.json(
+        return jsonResponse(
           { error: "userId, projectId, and accessLevel are required" },
           { status: 400 }
         );
       }
       if (!["view", "edit"].includes(accessLevel)) {
-        return Response.json(
+        return jsonResponse(
           { error: "Invalid accessLevel" },
           { status: 400 }
         );
@@ -88,32 +132,30 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         accessLevel,
         grantedBy: user.id,
       });
-      return Response.json(result);
+      return jsonResponse(result);
     }
 
     if (actionType === "revoke") {
-      const userId = formData.get("userId")?.toString();
-      const projectId = formData.get("projectId")?.toString();
+      const userId =
+        typeof values?.userId === "string" ? values.userId : undefined;
+      const projectId =
+        typeof values?.projectId === "string" ? values.projectId : undefined;
       if (!userId || !projectId) {
-        return Response.json(
+        return jsonResponse(
           { error: "userId and projectId are required" },
           { status: 400 }
         );
       }
       const result = await revokeProjectAccess(context, { userId, projectId });
-      return Response.json(result);
+      return jsonResponse(result);
     }
 
-    return Response.json({ error: "Unknown action" }, { status: 400 });
+    return jsonResponse({ error: "Unknown action" }, { status: 400 });
   } catch (error) {
     console.error("[RBAC] Project access action error:", error);
-    return Response.json(
+    return jsonResponse(
       { error: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
     );
   }
 };
-
-export default function AdminProjectAccess() {
-  return null;
-}

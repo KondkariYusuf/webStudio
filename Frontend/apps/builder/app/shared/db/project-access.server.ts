@@ -2,6 +2,21 @@ import type { AppContext } from "@webstudio-is/trpc-interface/index.server";
 
 export type AccessLevel = "view" | "edit";
 
+export const getAllProjectsForAdmin = async (context: AppContext) => {
+  const result = await context.postgrest.client
+    .from("Project")
+    .select("id,title,userId,createdAt")
+    .eq("isDeleted", false)
+    .order("createdAt", { ascending: false });
+
+  if (result.error) {
+    console.error(result.error);
+    throw new Error("Failed to fetch projects");
+  }
+
+  return result.data;
+};
+
 export const getProjectAccessList = async (
   context: AppContext,
   projectId: string

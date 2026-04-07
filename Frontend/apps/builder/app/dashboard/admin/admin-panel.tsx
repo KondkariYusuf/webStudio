@@ -27,6 +27,22 @@ type UserItem = {
   createdAt: string;
 };
 
+type ProjectItem = {
+  id: string;
+  title: string;
+  userId: string | null;
+  createdAt: string;
+};
+
+type ProjectAccessItem = {
+  id: string;
+  userId: string;
+  projectId: string;
+  accessLevel: "view" | "edit";
+  grantedBy: string;
+  createdAt: string;
+};
+
 const roleOptions = [
   { value: "admin", label: "Admin" },
   { value: "editor", label: "Editor" },
@@ -63,6 +79,17 @@ const getResponseError = async (response: Response) => {
 
 const postAdminUsers = async (payload: Record<string, string>) => {
   return fetch("/rest/admin/users", {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+};
+
+const postProjectAccess = async (payload: Record<string, string>) => {
+  return fetch("/rest/admin/project-access", {
     method: "POST",
     headers: {
       Accept: "application/json",
@@ -291,6 +318,11 @@ const CreateUserForm = ({
 
 export const AdminPanel = ({ currentUserId }: { currentUserId: string }) => {
   const [users, setUsers] = useState<UserItem[]>([]);
+  const [projects, setProjects] = useState<ProjectItem[]>([]);
+  const [selectedProjectId, setSelectedProjectId] = useState<string>("");
+  const [projectAccess, setProjectAccess] = useState<ProjectAccessItem[]>([]);
+  const [isAccessLoading, setIsAccessLoading] = useState(false);
+  const [accessError, setAccessError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
@@ -308,12 +340,21 @@ export const AdminPanel = ({ currentUserId }: { currentUserId: string }) => {
 
       if (error) {
         setUsers([]);
+        setProjects([]);
         setError(error);
       } else {
         setUsers(data.users ?? []);
+        const nextProjects = data.projects ?? [];
+        setProjects(nextProjects);
+        setSelectedProjectId((currentProjectId) =>
+          currentProjectId && nextProjects.some((project: ProjectItem) => project.id === currentProjectId)
+            ? currentProjectId
+            : nextProjects[0]?.id ?? ""
+        );
       }
     } catch (e) {
       setUsers([]);
+      setProjects([]);
       setError(`Failed to load users: ${e instanceof Error ? e.message : "Unknown"}`);
     } finally {
       setIsLoading(false);
@@ -323,6 +364,47 @@ export const AdminPanel = ({ currentUserId }: { currentUserId: string }) => {
   useEffect(() => {
     fetchUsers();
   }, [fetchUsers]);
+
+  const fetchProjectAccess = useCallback(async (projectId: string) => {
+    if (projectId.length === 0) {
+      setProjectAccess([]);
+      setAccessError(null);
+      return;
+    }
+
+    setIsAccessLoading(true);
+    setAccessError(null);
+
+    try {
+      const res = await fetch(
+        `/rest/admin/project-access?projectId=${encodeURIComponent(projectId)}`,
+        {
+          headers: {
+            Accept: "application/json",
+          },
+        }
+      );
+      const { data, error } = await getResponseError(res);
+
+      if (error) {
+        setProjectAccess([]);
+        setAccessError(error);
+      } else {
+        setProjectAccess(data.accessList ?? []);
+      }
+    } catch (err) {
+      setProjectAccess([]);
+      setAccessError(
+        `Failed to load project access: ${err instanceof Error ? err.message : "Unknown"}`
+      );
+    } finally {
+      setIsAccessLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void fetchProjectAccess(selectedProjectId);
+  }, [fetchProjectAccess, selectedProjectId]);
 
   const handleRoleChange = async (userId: string, role: string) => {
     try {
@@ -357,14 +439,56 @@ export const AdminPanel = ({ currentUserId }: { currentUserId: string }) => {
         alert(error);
       } else {
         setUsers((prev) => prev.filter((u) => u.id !== userId));
+        await fetchProjectAccess(selectedProjectId);
       }
     } catch {
       alert("Failed to delete user");
     }
   };
 
+  const handleProjectAccessChange = async (
+    userId: string,
+    accessLevel: "none" | "view" | "edit"
+  ) => {
+    if (selectedProjectId.length === 0) {
+      return;
+    }
+
+    try {
+      const res =
+        accessLevel === "none"
+          ? await postProjectAccess({
+              action: "revoke",
+              userId,
+              projectId: selectedProjectId,
+            })
+          : await postProjectAccess({
+              action: "grant",
+              userId,
+              projectId: selectedProjectId,
+              accessLevel,
+            });
+
+      const { error } = await getResponseError(res);
+
+      if (error) {
+        alert(error);
+        return;
+      }
+
+      await fetchProjectAccess(selectedProjectId);
+    } catch {
+      alert("Failed to update project access");
+    }
+  };
+
+  const selectedProject = projects.find((project) => project.id === selectedProjectId);
+  const accessByUserId = new Map(
+    projectAccess.map((entry) => [entry.userId, entry.accessLevel])
+  );
+
   return (
-    <Flex direction="column" css={{ height: "100%", overflow: "hidden" }}>
+    <Flex direction="column" gap="6">
       {/* Header */}
       <Flex
         align="center"
@@ -408,30 +532,185 @@ export const AdminPanel = ({ currentUserId }: { currentUserId: string }) => {
         </Dialog>
       </Flex>
 
-      {/* User List */}
-      {isLoading ? (
-        <Flex align="center" justify="center" css={{ padding: theme.spacing[10] }}>
-          <Text css={{ color: theme.colors.foregroundSubtle }}>
-            Loading users...
-          </Text>
-        </Flex>
-      ) : error ? (
-        <Flex align="center" justify="center" css={{ padding: theme.spacing[10] }}>
-          <Text color="destructive">{error}</Text>
-        </Flex>
-      ) : (
-        <ScrollArea css={{ flex: 1 }}>
-          {users.map((user) => (
-            <UserRow
-              key={user.id}
-              user={user}
-              currentUserId={currentUserId}
-              onRoleChange={handleRoleChange}
-              onDelete={handleDelete}
+      <Flex direction="column" css={{ border: `1px solid ${theme.colors.borderMain}`, borderRadius: 12, overflow: "hidden" }}>
+        {isLoading ? (
+          <Flex align="center" justify="center" css={{ padding: theme.spacing[10] }}>
+            <Text css={{ color: theme.colors.foregroundSubtle }}>
+              Loading users...
+            </Text>
+          </Flex>
+        ) : error ? (
+          <Flex align="center" justify="center" css={{ padding: theme.spacing[10] }}>
+            <Text color="destructive">{error}</Text>
+          </Flex>
+        ) : (
+          <ScrollArea css={{ maxHeight: 420 }}>
+            {users.map((user) => (
+              <UserRow
+                key={user.id}
+                user={user}
+                currentUserId={currentUserId}
+                onRoleChange={handleRoleChange}
+                onDelete={handleDelete}
+              />
+            ))}
+          </ScrollArea>
+        )}
+      </Flex>
+
+      <Flex
+        direction="column"
+        css={{
+          border: `1px solid ${theme.colors.borderMain}`,
+          borderRadius: 12,
+          overflow: "hidden",
+        }}
+      >
+        <Flex
+          align="center"
+          justify="between"
+          css={{
+            padding: `${theme.spacing[5]} ${theme.spacing[7]}`,
+            borderBottom: `1px solid ${theme.colors.borderMain}`,
+          }}
+        >
+          <Flex direction="column" gap="1">
+            <Text variant="titles" css={{ fontSize: "16px" }}>
+              Project Access
+            </Text>
+            <Text variant="small" css={{ color: theme.colors.foregroundSubtle }}>
+              Grant `view` or `edit` access per project.
+            </Text>
+          </Flex>
+          {projects.length > 0 ? (
+            <Select
+              options={projects.map((project) => project.id)}
+              getLabel={(value) =>
+                projects.find((project) => project.id === value)?.title ?? value
+              }
+              value={selectedProjectId}
+              onChange={setSelectedProjectId}
+              css={{ width: 280 }}
             />
-          ))}
-        </ScrollArea>
-      )}
+          ) : (
+            <Text variant="small" css={{ color: theme.colors.foregroundSubtle }}>
+              No projects found
+            </Text>
+          )}
+        </Flex>
+
+        {selectedProject && (
+          <Flex
+            align="center"
+            justify="between"
+            css={{
+              padding: `${theme.spacing[4]} ${theme.spacing[7]}`,
+              borderBottom: `1px solid ${theme.colors.borderMain}`,
+              backgroundColor: theme.colors.backgroundPanel,
+            }}
+          >
+            <Text css={{ fontWeight: 600 }}>{selectedProject.title}</Text>
+            <Text variant="small" css={{ color: theme.colors.foregroundSubtle }}>
+              {projectAccess.length} shared user{projectAccess.length !== 1 ? "s" : ""}
+            </Text>
+          </Flex>
+        )}
+
+        {projects.length === 0 ? (
+          <Flex align="center" justify="center" css={{ padding: theme.spacing[10] }}>
+            <Text css={{ color: theme.colors.foregroundSubtle }}>
+              Create a project first, then assign access here.
+            </Text>
+          </Flex>
+        ) : isLoading ? null : accessError ? (
+          <Flex align="center" justify="center" css={{ padding: theme.spacing[10] }}>
+            <Text color="destructive">{accessError}</Text>
+          </Flex>
+        ) : isAccessLoading ? (
+          <Flex align="center" justify="center" css={{ padding: theme.spacing[10] }}>
+            <Text css={{ color: theme.colors.foregroundSubtle }}>
+              Loading project access...
+            </Text>
+          </Flex>
+        ) : (
+          <ScrollArea css={{ maxHeight: 420 }}>
+            {users.map((user) => {
+              const isOwner = selectedProject?.userId === user.id;
+              const accessLevel = accessByUserId.get(user.id) ?? "none";
+
+              return (
+                <Flex
+                  key={`${selectedProjectId}-${user.id}`}
+                  align="center"
+                  css={{
+                    padding: `${theme.spacing[4]} ${theme.spacing[5]}`,
+                    borderBottom: `1px solid ${theme.colors.borderMain}`,
+                    gap: theme.spacing[4],
+                    "&:hover": {
+                      backgroundColor: theme.colors.backgroundHover,
+                    },
+                  }}
+                >
+                  <Flex
+                    align="center"
+                    justify="center"
+                    css={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: "50%",
+                      backgroundColor: "#2b00cc",
+                      color: "#fff",
+                      fontSize: "13px",
+                      fontWeight: 600,
+                      flexShrink: 0,
+                    }}
+                  >
+                    {(user.email ?? "U")[0].toUpperCase()}
+                  </Flex>
+
+                  <Flex direction="column" css={{ flex: 1, minWidth: 0 }}>
+                    <Text truncate css={{ fontWeight: 500 }}>
+                      {user.email ?? "No email"}
+                    </Text>
+                    <Text variant="small" css={{ color: theme.colors.foregroundSubtle }}>
+                      {isOwner
+                        ? "Project owner"
+                        : accessLevel === "none"
+                          ? "No direct access assigned"
+                          : `Current access: ${accessLevel}`}
+                    </Text>
+                  </Flex>
+
+                  {isOwner ? (
+                    <Text variant="small" css={{ color: theme.colors.foregroundSubtle }}>
+                      Owner
+                    </Text>
+                  ) : (
+                    <Select
+                      options={["none", "view", "edit"]}
+                      getLabel={(value) =>
+                        value === "none"
+                          ? "No access"
+                          : value === "view"
+                            ? "View"
+                            : "Edit"
+                      }
+                      value={accessLevel}
+                      onChange={(value) =>
+                        handleProjectAccessChange(
+                          user.id,
+                          value as "none" | "view" | "edit"
+                        )
+                      }
+                      css={{ width: 120 }}
+                    />
+                  )}
+                </Flex>
+              );
+            })}
+          </ScrollArea>
+        )}
+      </Flex>
     </Flex>
   );
 };

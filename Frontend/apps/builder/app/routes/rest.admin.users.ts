@@ -13,6 +13,7 @@ import {
   AdminUserManagementError,
   type UserRole,
 } from "~/shared/db/user.server";
+import { getAllProjectsForAdmin } from "~/shared/db/project-access.server";
 
 const jsonResponse = (
   body: unknown,
@@ -78,8 +79,11 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       return jsonResponse({ error: "Forbidden: Admin only" }, { status: 403 });
     }
 
-    const users = await getAllUsers(context);
-    return jsonResponse({ users });
+    const [users, projects] = await Promise.all([
+      getAllUsers(context),
+      getAllProjectsForAdmin(context),
+    ]);
+    return jsonResponse({ users, projects });
   } catch (error) {
     console.error("[RBAC] Loader error:", error);
     return getErrorResponse(error);
