@@ -12,6 +12,7 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  DialogDescription,
   DialogClose,
   DialogTrigger,
 } from "@webstudio-is/design-system";
@@ -31,6 +32,45 @@ const roleOptions = [
   { value: "editor", label: "Editor" },
   { value: "viewer", label: "Viewer" },
 ];
+
+const getResponseError = async (response: Response) => {
+  const contentType = response.headers.get("content-type") ?? "";
+
+  if (contentType.includes("application/json")) {
+    const data = await response.json();
+    if (response.ok && data?.success !== false && typeof data?.error !== "string") {
+      return { data, error: null as string | null };
+    }
+
+    return {
+      data: null,
+      error:
+        typeof data?.error === "string"
+          ? data.error
+          : `Request failed (${response.status})`,
+    };
+  }
+
+  const text = await response.text();
+  const fallbackMessage =
+    text.trim() || `${response.status} ${response.statusText}`.trim();
+
+  return {
+    data: null,
+    error: `Server error (${response.status}): ${fallbackMessage}`,
+  };
+};
+
+const postAdminUsers = async (payload: Record<string, string>) => {
+  return fetch("/rest/admin/users", {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+};
 
 const RoleBadge = ({ role }: { role: string }) => {
   const bgColor =
@@ -156,8 +196,10 @@ const UserRow = ({
 
 const CreateUserForm = ({
   onCreated,
+  existingEmails,
 }: {
   onCreated: () => void;
+  existingEmails: string[];
 }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -167,28 +209,35 @@ const CreateUserForm = ({
 
   const handleSubmit = async () => {
     setError(null);
+
+    const normalizedEmail = email.trim().toLowerCase();
+    if (normalizedEmail.length === 0) {
+      setError("Email is required");
+      return;
+    }
+
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters");
+      return;
+    }
+
+    if (existingEmails.includes(normalizedEmail)) {
+      setError("User with this email already exists");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
-      const formData = new FormData();
-      formData.set("action", "createUser");
-      formData.set("email", email);
-      formData.set("password", password);
-      formData.set("role", role);
-
-      const res = await fetch("/rest/admin/users", {
-        method: "POST",
-        body: formData,
+      const res = await postAdminUsers({
+        action: "createUser",
+        email: normalizedEmail,
+        password,
+        role,
       });
+      const { error } = await getResponseError(res);
 
-      const contentType = res.headers.get("content-type") ?? "";
-      if (!contentType.includes("application/json")) {
-        setError(`Server error (${res.status}): Non-JSON response`);
-        return;
-      }
-
-      const data = await res.json();
-      if (data.error) {
-        setError(data.error);
+      if (error) {
+        setError(error);
       } else {
         setEmail("");
         setPassword("");
@@ -230,6 +279,7 @@ const CreateUserForm = ({
       {error && <Text color="destructive">{error}</Text>}
       <Button
         onClick={handleSubmit}
+        type="button"
         color="primary"
         state={isSubmitting ? "pending" : undefined}
       >
@@ -247,20 +297,23 @@ export const AdminPanel = ({ currentUserId }: { currentUserId: string }) => {
 
   const fetchUsers = useCallback(async () => {
     setIsLoading(true);
+    setError(null);
     try {
-      const res = await fetch("/rest/admin/users");
-      const contentType = res.headers.get("content-type") ?? "";
-      if (!contentType.includes("application/json")) {
-        setError(`Server error (${res.status}): ${res.statusText}`);
-        return;
-      }
-      const data = await res.json();
-      if (data.error) {
-        setError(data.error);
+      const res = await fetch("/rest/admin/users", {
+        headers: {
+          Accept: "application/json",
+        },
+      });
+      const { data, error } = await getResponseError(res);
+
+      if (error) {
+        setUsers([]);
+        setError(error);
       } else {
         setUsers(data.users ?? []);
       }
     } catch (e) {
+      setUsers([]);
       setError(`Failed to load users: ${e instanceof Error ? e.message : "Unknown"}`);
     } finally {
       setIsLoading(false);
@@ -272,19 +325,15 @@ export const AdminPanel = ({ currentUserId }: { currentUserId: string }) => {
   }, [fetchUsers]);
 
   const handleRoleChange = async (userId: string, role: string) => {
-    const formData = new FormData();
-    formData.set("action", "updateRole");
-    formData.set("userId", userId);
-    formData.set("role", role);
-
     try {
-      const res = await fetch("/rest/admin/users", {
-        method: "POST",
-        body: formData,
+      const res = await postAdminUsers({
+        action: "updateRole",
+        userId,
+        role,
       });
-      const data = await res.json();
-      if (data.error) {
-        alert(data.error);
+      const { error } = await getResponseError(res);
+      if (error) {
+        alert(error);
       } else {
         setUsers((prev) =>
           prev.map((u) => (u.id === userId ? { ...u, role } : u))
@@ -298,18 +347,14 @@ export const AdminPanel = ({ currentUserId }: { currentUserId: string }) => {
   const handleDelete = async (userId: string) => {
     if (!confirm("Are you sure you want to delete this user?")) return;
 
-    const formData = new FormData();
-    formData.set("action", "deleteUser");
-    formData.set("userId", userId);
-
     try {
-      const res = await fetch("/rest/admin/users", {
-        method: "POST",
-        body: formData,
+      const res = await postAdminUsers({
+        action: "deleteUser",
+        userId,
       });
-      const data = await res.json();
-      if (data.error) {
-        alert(data.error);
+      const { error } = await getResponseError(res);
+      if (error) {
+        alert(error);
       } else {
         setUsers((prev) => prev.filter((u) => u.id !== userId));
       }
@@ -344,9 +389,15 @@ export const AdminPanel = ({ currentUserId }: { currentUserId: string }) => {
               Add User
             </Button>
           </DialogTrigger>
-          <DialogContent css={{ maxWidth: 400 }}>
+          <DialogContent css={{ maxWidth: 400 }} aria-describedby="admin-create-user-description">
             <DialogTitle>Add User</DialogTitle>
+            <DialogDescription id="admin-create-user-description">
+              Create a new dashboard user with an email, password, and role.
+            </DialogDescription>
             <CreateUserForm
+              existingEmails={users
+                .map((user) => user.email?.trim().toLowerCase())
+                .filter((email): email is string => email !== undefined && email.length > 0)}
               onCreated={() => {
                 setShowCreateDialog(false);
                 fetchUsers();

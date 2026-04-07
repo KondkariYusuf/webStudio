@@ -10,31 +10,79 @@ import {
   deleteUserById,
   createUserByAdmin,
   getUserById,
+  AdminUserManagementError,
   type UserRole,
 } from "~/shared/db/user.server";
+
+const jsonResponse = (
+  body: unknown,
+  init?: ResponseInit
+) =>
+  new Response(JSON.stringify(body), {
+    ...init,
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+      ...(init?.headers ?? {}),
+    },
+  });
+
+const getErrorResponse = (error: unknown) => {
+  if (error instanceof AdminUserManagementError) {
+    return jsonResponse(
+      { success: false, error: error.message },
+      { status: 200 }
+    );
+  }
+
+  return jsonResponse(
+    { error: error instanceof Error ? error.message : "Unknown error" },
+    { status: 500 }
+  );
+};
+
+const getRequestData = async (request: Request) => {
+  const contentType = request.headers.get("content-type") ?? "";
+
+  if (contentType.includes("application/json")) {
+    const body = await request.json();
+    return {
+      action: typeof body?.action === "string" ? body.action : undefined,
+      values: body,
+    };
+  }
+
+  const formData = await request.formData();
+  return {
+    action: formData.get("action")?.toString(),
+    values: {
+      action: formData.get("action")?.toString(),
+      userId: formData.get("userId")?.toString(),
+      role: formData.get("role")?.toString(),
+      email: formData.get("email")?.toString(),
+      password: formData.get("password")?.toString(),
+    },
+  };
+};
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   try {
     const user = await findAuthenticatedUser(request);
     if (!user) {
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
+      return jsonResponse({ error: "Unauthorized" }, { status: 401 });
     }
 
     const context = await createContext(request);
     const fullUser = await getUserById(context, user.id);
 
     if (fullUser.role !== "admin") {
-      return Response.json({ error: "Forbidden: Admin only" }, { status: 403 });
+      return jsonResponse({ error: "Forbidden: Admin only" }, { status: 403 });
     }
 
     const users = await getAllUsers(context);
-    return Response.json({ users });
+    return jsonResponse({ users });
   } catch (error) {
     console.error("[RBAC] Loader error:", error);
-    return Response.json(
-      { error: error instanceof Error ? error.message : "Unknown error" },
-      { status: 500 }
-    );
+    return getErrorResponse(error);
   }
 };
 
@@ -42,84 +90,86 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   try {
     const user = await findAuthenticatedUser(request);
     if (!user) {
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
+      return jsonResponse({ error: "Unauthorized" }, { status: 401 });
     }
 
     const context = await createContext(request);
     const fullUser = await getUserById(context, user.id);
 
     if (fullUser.role !== "admin") {
-      return Response.json({ error: "Forbidden: Admin only" }, { status: 403 });
+      return jsonResponse({ error: "Forbidden: Admin only" }, { status: 403 });
     }
 
-    const formData = await request.formData();
-    const actionType = formData.get("action")?.toString();
+    const { action, values } = await getRequestData(request);
+    const actionType = action;
 
     if (actionType === "updateRole") {
-      const userId = formData.get("userId")?.toString();
-      const role = formData.get("role")?.toString() as UserRole;
+      const userId =
+        typeof values?.userId === "string" ? values.userId : undefined;
+      const role =
+        typeof values?.role === "string" ? (values.role as UserRole) : undefined;
       if (!userId || !role) {
-        return Response.json(
+        return jsonResponse(
           { error: "userId and role are required" },
           { status: 400 }
         );
       }
       if (!["admin", "editor", "viewer"].includes(role)) {
-        return Response.json({ error: "Invalid role" }, { status: 400 });
+        return jsonResponse({ error: "Invalid role" }, { status: 400 });
       }
       await updateUserRole(context, { userId, role });
-      return Response.json({ success: true });
+      return jsonResponse({ success: true });
     }
 
     if (actionType === "deleteUser") {
-      const userId = formData.get("userId")?.toString();
+      const userId =
+        typeof values?.userId === "string" ? values.userId : undefined;
       if (!userId) {
-        return Response.json(
+        return jsonResponse(
           { error: "userId is required" },
           { status: 400 }
         );
       }
       if (userId === user.id) {
-        return Response.json(
+        return jsonResponse(
           { error: "Cannot delete yourself" },
           { status: 400 }
         );
       }
       await deleteUserById(context, userId);
-      return Response.json({ success: true });
+      return jsonResponse({ success: true });
     }
 
     if (actionType === "createUser") {
-      const email = formData.get("email")?.toString();
-      const role = (formData.get("role")?.toString() ?? "viewer") as UserRole;
-      const password = formData.get("password")?.toString();
+      const email =
+        typeof values?.email === "string" ? values.email : undefined;
+      const role = (
+        typeof values?.role === "string" ? values.role : "viewer"
+      ) as UserRole;
+      const password =
+        typeof values?.password === "string" ? values.password : undefined;
       if (!email || !password) {
-        return Response.json(
+        return jsonResponse(
           { error: "email and password are required" },
           { status: 400 }
         );
       }
       if (!["admin", "editor", "viewer"].includes(role)) {
-        return Response.json({ error: "Invalid role" }, { status: 400 });
+        return jsonResponse({ error: "Invalid role" }, { status: 400 });
       }
       const newUser = await createUserByAdmin(context, {
         email,
         role,
         password,
       });
-      return Response.json({ success: true, user: newUser });
+      return jsonResponse({ success: true, user: newUser });
     }
 
-    return Response.json({ error: "Unknown action" }, { status: 400 });
+    return jsonResponse({ error: "Unknown action" }, { status: 400 });
   } catch (error) {
-    console.error("[RBAC] Admin action error:", error);
-    return Response.json(
-      { error: error instanceof Error ? error.message : "Unknown error" },
-      { status: 500 }
-    );
+    if (error instanceof AdminUserManagementError === false) {
+      console.error("[RBAC] Admin action error:", error);
+    }
+    return getErrorResponse(error);
   }
 };
-
-export default function AdminUsers() {
-  return null;
-}

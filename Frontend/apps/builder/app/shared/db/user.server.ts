@@ -257,6 +257,16 @@ export const updateUserProjectsTags = async (
 
 export type UserRole = "admin" | "editor" | "viewer";
 
+export class AdminUserManagementError extends Error {
+  status: number;
+
+  constructor(message: string, status = 400) {
+    super(message);
+    this.name = "AdminUserManagementError";
+    this.status = status;
+  }
+}
+
 export const getAllUsers = async (context: AppContext) => {
   const result = await context.postgrest.client
     .from("User")
@@ -309,23 +319,38 @@ export const createUserByAdmin = async (
   context: AppContext,
   { email, role, password }: { email: string; role: UserRole; password: string }
 ) => {
+  const parsed = emailPasswordSchema.safeParse({
+    email,
+    password,
+  });
+
+  if (parsed.success === false) {
+    throw new AdminUserManagementError("Invalid email or password", 400);
+  }
+
+  const normalizedEmail = normalizeEmail(parsed.data.email);
   const id = crypto.randomUUID();
-  const passwordHash = hashPassword(password);
+  const passwordHash = hashPassword(parsed.data.password);
 
   const existingUser = await context.postgrest.client
     .from("User")
     .select("id")
-    .eq("email", email.trim().toLowerCase())
+    .eq("email", normalizedEmail)
     .maybeSingle();
 
+  if (existingUser.error) {
+    console.error(existingUser.error);
+    throw new Error("Failed to create user");
+  }
+
   if (existingUser.data?.id) {
-    throw new Error("User with this email already exists");
+    throw new AdminUserManagementError("User with this email already exists", 409);
   }
 
   const result = await context.postgrest.client.from("User").insert({
     id,
-    email: email.trim().toLowerCase(),
-    username: email.trim().toLowerCase(),
+    email: normalizedEmail,
+    username: normalizedEmail,
     image: "",
     provider: "password",
     passwordHash,
@@ -333,9 +358,12 @@ export const createUserByAdmin = async (
   });
 
   if (result.error) {
+    if (result.error.code === "23505") {
+      throw new AdminUserManagementError("User with this email already exists", 409);
+    }
     console.error(result.error);
     throw new Error("Failed to create user");
   }
 
-  return { id, email, role };
+  return { id, email: normalizedEmail, role };
 };

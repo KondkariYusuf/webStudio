@@ -256,10 +256,7 @@ export const Dashboard = () => {
             }}
           >
             <Box
-              as="button"
-              onClick={() => {
-                // Trigger search via focus if needed, or rely on Search component internal trigger
-              }}
+              as="div"
               css={{
                 all: "unset",
                 display: "flex",
