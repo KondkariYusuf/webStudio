@@ -21,6 +21,75 @@ type CheckInput = {
   };
 };
 
+const SUPER_ADMIN_EMAIL = "admin@gmail.com";
+
+const normalizeEmail = (email: string | null | undefined) =>
+  (email ?? "").trim().toLowerCase();
+
+const normalizeCompanyName = (companyName: string | null | undefined) =>
+  (companyName ?? "").trim().toLowerCase();
+
+const hasImplicitCompanyViewAccess = async (
+  postgrestClient: AppContext["postgrest"]["client"],
+  userId: string,
+  projectId: string
+) => {
+  const [userRow, projectRow] = await Promise.all([
+    postgrestClient
+      .from("User")
+      .select("id,email,role,companyName")
+      .eq("id", userId)
+      .maybeSingle(),
+    postgrestClient
+      .from("Project")
+      .select("userId")
+      .eq("id", projectId)
+      .maybeSingle(),
+  ]);
+
+  if (userRow.error) {
+    throw userRow.error;
+  }
+
+  if (projectRow.error) {
+    throw projectRow.error;
+  }
+
+  const currentUser = userRow.data;
+  const ownerId = projectRow.data?.userId;
+
+  if (
+    currentUser == null ||
+    ownerId == null ||
+    normalizeCompanyName(currentUser.companyName) === ""
+  ) {
+    return false;
+  }
+
+  const ownerRow = await postgrestClient
+    .from("User")
+    .select("email,role,companyName")
+    .eq("id", ownerId)
+    .maybeSingle();
+
+  if (ownerRow.error) {
+    throw ownerRow.error;
+  }
+
+  const owner = ownerRow.data;
+
+  if (owner == null) {
+    return false;
+  }
+
+  return (
+    owner.role === "admin" &&
+    normalizeEmail(owner.email) !== SUPER_ADMIN_EMAIL &&
+    normalizeCompanyName(owner.companyName) ===
+      normalizeCompanyName(currentUser.companyName)
+  );
+};
+
 const check = async (
   postgrestClient: AppContext["postgrest"]["client"],
   input: CheckInput
@@ -42,13 +111,27 @@ const check = async (
       return { allowed: true };
     }
 
-    if (input.permit === "own" || input.permit === "admin" || input.permit === "build") {
+    if (input.permit === "own") {
       return { allowed: false };
     }
 
-    const accessLevelToRelations: Record<Exclude<AuthPermit, "own" | "admin" | "build">, string[]> = {
-      view: ["view", "edit"],
-      edit: ["edit"],
+    if (input.permit === "view") {
+      const hasCompanyViewAccess = await hasImplicitCompanyViewAccess(
+        postgrestClient,
+        subjectSet.id,
+        input.id
+      );
+
+      if (hasCompanyViewAccess) {
+        return { allowed: true };
+      }
+    }
+
+    const accessLevelToRelations: Record<Exclude<AuthPermit, "own">, string[]> = {
+      view: ["view", "edit", "admin"],
+      edit: ["edit", "admin"],
+      build: ["admin"],
+      admin: ["admin"],
     };
 
     const sharedAccessRow = await postgrestClient

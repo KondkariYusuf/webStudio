@@ -147,13 +147,27 @@ exports.Prisma.AssetScalarFieldEnum = {
 exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
   email: 'email',
+  phone: 'phone',
   passwordHash: 'passwordHash',
   provider: 'provider',
   image: 'image',
   username: 'username',
+  fullName: 'fullName',
+  companyName: 'companyName',
+  approved: 'approved',
+  role: 'role',
   createdAt: 'createdAt',
   teamId: 'teamId',
   projectsTags: 'projectsTags'
+};
+
+exports.Prisma.UserProjectAccessScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  projectId: 'projectId',
+  accessLevel: 'accessLevel',
+  grantedBy: 'grantedBy',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.ClientReferencesScalarFieldEnum = {
@@ -348,6 +362,7 @@ exports.Prisma.ModelName = {
   File: 'File',
   Asset: 'Asset',
   User: 'User',
+  UserProjectAccess: 'UserProjectAccess',
   ClientReferences: 'ClientReferences',
   Product: 'Product',
   TransactionLog: 'TransactionLog',

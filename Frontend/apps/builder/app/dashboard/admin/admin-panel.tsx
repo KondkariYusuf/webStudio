@@ -17,14 +17,31 @@ import {
   DialogTrigger,
 } from "@webstudio-is/design-system";
 import { TrashIcon, PlusIcon } from "@webstudio-is/icons";
+import {
+  phoneNumberErrorMessage,
+  phoneNumberPattern,
+  phoneNumberRegex,
+} from "~/shared/validation/phone";
 
 type UserItem = {
   id: string;
   email: string | null;
   username: string | null;
+  fullName?: string | null;
+  companyName?: string | null;
+  phone?: string | null;
   image: string | null;
   role: string;
+  approved?: boolean;
   createdAt: string;
+};
+
+type CurrentAdmin = {
+  id: string;
+  email: string | null;
+  role: string;
+  isSuperAdmin: boolean;
+  companyName?: string | null;
 };
 
 type ProjectItem = {
@@ -38,7 +55,7 @@ type ProjectAccessItem = {
   id: string;
   userId: string;
   projectId: string;
-  accessLevel: "view" | "edit";
+  accessLevel: "view" | "edit" | "admin";
   grantedBy: string;
   createdAt: string;
 };
@@ -129,11 +146,13 @@ const RoleBadge = ({ role }: { role: string }) => {
 const UserRow = ({
   user,
   currentUserId,
+  canManage,
   onRoleChange,
   onDelete,
 }: {
   user: UserItem;
   currentUserId: string;
+  canManage: boolean;
   onRoleChange: (userId: string, role: string) => void;
   onDelete: (userId: string) => void;
 }) => {
@@ -188,7 +207,7 @@ const UserRow = ({
               (You)
             </Text>
           </Flex>
-        ) : (
+        ) : canManage ? (
           <>
             <Select
               options={roleOptions.map((r) => r.value)}
@@ -215,6 +234,13 @@ const UserRow = ({
               </IconButton>
             </Tooltip>
           </>
+        ) : (
+          <Flex align="center" gap="2">
+            <RoleBadge role={user.role} />
+            <Text variant="small" css={{ color: theme.colors.foregroundSubtle }}>
+              Super admin only
+            </Text>
+          </Flex>
         )}
       </Flex>
     </Flex>
@@ -224,13 +250,20 @@ const UserRow = ({
 const CreateUserForm = ({
   onCreated,
   existingEmails,
+  canCreateAdmin,
+  enforcedCompanyName,
 }: {
   onCreated: () => void;
   existingEmails: string[];
+  canCreateAdmin: boolean;
+  enforcedCompanyName?: string | null;
 }) => {
   const [email, setEmail] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [companyName, setCompanyName] = useState(enforcedCompanyName ?? "");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("viewer");
+  const [role, setRole] = useState(canCreateAdmin ? "admin" : "viewer");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -238,8 +271,24 @@ const CreateUserForm = ({
     setError(null);
 
     const normalizedEmail = email.trim().toLowerCase();
+    const normalizedCompanyName = (enforcedCompanyName ?? companyName).trim();
     if (normalizedEmail.length === 0) {
       setError("Email is required");
+      return;
+    }
+
+    if (fullName.trim().length === 0) {
+      setError("Name is required");
+      return;
+    }
+
+    if (normalizedCompanyName.length === 0) {
+      setError("Company name is required");
+      return;
+    }
+
+    if (phoneNumberRegex.test(phone.trim()) === false) {
+      setError(phoneNumberErrorMessage);
       return;
     }
 
@@ -258,6 +307,9 @@ const CreateUserForm = ({
       const res = await postAdminUsers({
         action: "createUser",
         email: normalizedEmail,
+        fullName: fullName.trim(),
+        companyName: normalizedCompanyName,
+        phone: phone.trim(),
         password,
         role,
       });
@@ -267,8 +319,11 @@ const CreateUserForm = ({
         setError(error);
       } else {
         setEmail("");
+        setFullName("");
+        setCompanyName(enforcedCompanyName ?? "");
+        setPhone("");
         setPassword("");
-        setRole("viewer");
+        setRole(canCreateAdmin ? "admin" : "viewer");
         onCreated();
       }
     } catch (err) {
@@ -284,6 +339,24 @@ const CreateUserForm = ({
     <Flex direction="column" gap="3" css={{ padding: theme.spacing[5] }}>
       <Text variant="titles">Create New User</Text>
       <InputField
+        placeholder="Full Name"
+        value={fullName}
+        onChange={(e) => setFullName(e.target.value)}
+      />
+      <InputField
+        placeholder="Company Name"
+        value={companyName}
+        onChange={(e) => setCompanyName(e.target.value)}
+        disabled={enforcedCompanyName !== undefined && enforcedCompanyName !== null}
+      />
+      <InputField
+        placeholder="Phone Number"
+        type="tel"
+        value={phone}
+        onChange={(e) => setPhone(e.target.value)}
+        pattern={phoneNumberPattern}
+      />
+      <InputField
         placeholder="Email"
         type="email"
         value={email}
@@ -296,7 +369,9 @@ const CreateUserForm = ({
         onChange={(e) => setPassword(e.target.value)}
       />
       <Select
-        options={roleOptions.map((r) => r.value)}
+        options={roleOptions
+          .filter((r) => canCreateAdmin || r.value !== "admin")
+          .map((r) => r.value)}
         getLabel={(value) =>
           roleOptions.find((r) => r.value === value)?.label ?? value
         }
@@ -318,6 +393,7 @@ const CreateUserForm = ({
 
 export const AdminPanel = ({ currentUserId }: { currentUserId: string }) => {
   const [users, setUsers] = useState<UserItem[]>([]);
+  const [currentAdmin, setCurrentAdmin] = useState<CurrentAdmin | null>(null);
   const [projects, setProjects] = useState<ProjectItem[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState<string>("");
   const [projectAccess, setProjectAccess] = useState<ProjectAccessItem[]>([]);
@@ -341,9 +417,11 @@ export const AdminPanel = ({ currentUserId }: { currentUserId: string }) => {
       if (error) {
         setUsers([]);
         setProjects([]);
+        setCurrentAdmin(null);
         setError(error);
       } else {
         setUsers(data.users ?? []);
+        setCurrentAdmin(data.currentUser ?? null);
         const nextProjects = data.projects ?? [];
         setProjects(nextProjects);
         setSelectedProjectId((currentProjectId) =>
@@ -355,6 +433,7 @@ export const AdminPanel = ({ currentUserId }: { currentUserId: string }) => {
     } catch (e) {
       setUsers([]);
       setProjects([]);
+      setCurrentAdmin(null);
       setError(`Failed to load users: ${e instanceof Error ? e.message : "Unknown"}`);
     } finally {
       setIsLoading(false);
@@ -448,7 +527,7 @@ export const AdminPanel = ({ currentUserId }: { currentUserId: string }) => {
 
   const handleProjectAccessChange = async (
     userId: string,
-    accessLevel: "none" | "view" | "edit"
+    accessLevel: "none" | "view" | "edit" | "admin"
   ) => {
     if (selectedProjectId.length === 0) {
       return;
@@ -486,6 +565,7 @@ export const AdminPanel = ({ currentUserId }: { currentUserId: string }) => {
   const accessByUserId = new Map(
     projectAccess.map((entry) => [entry.userId, entry.accessLevel])
   );
+  const isSuperAdmin = currentAdmin?.isSuperAdmin ?? false;
 
   return (
     <Flex direction="column" gap="6">
@@ -519,6 +599,8 @@ export const AdminPanel = ({ currentUserId }: { currentUserId: string }) => {
               Create a new dashboard user with an email, password, and role.
             </DialogDescription>
             <CreateUserForm
+              canCreateAdmin={isSuperAdmin}
+              enforcedCompanyName={isSuperAdmin ? null : currentAdmin?.companyName}
               existingEmails={users
                 .map((user) => user.email?.trim().toLowerCase())
                 .filter((email): email is string => email !== undefined && email.length > 0)}
@@ -550,6 +632,7 @@ export const AdminPanel = ({ currentUserId }: { currentUserId: string }) => {
                 key={user.id}
                 user={user}
                 currentUserId={currentUserId}
+                canManage={isSuperAdmin || user.role !== "admin"}
                 onRoleChange={handleRoleChange}
                 onDelete={handleDelete}
               />
@@ -579,7 +662,7 @@ export const AdminPanel = ({ currentUserId }: { currentUserId: string }) => {
               Project Access
             </Text>
             <Text variant="small" css={{ color: theme.colors.foregroundSubtle }}>
-              Grant `view` or `edit` access per project.
+              Grant `view`, `edit`, or `admin` access per project.
             </Text>
           </Flex>
           {projects.length > 0 ? (
@@ -637,6 +720,7 @@ export const AdminPanel = ({ currentUserId }: { currentUserId: string }) => {
             {users.map((user) => {
               const isOwner = selectedProject?.userId === user.id;
               const accessLevel = accessByUserId.get(user.id) ?? "none";
+              const canManageProjectAccess = isSuperAdmin || user.role !== "admin";
 
               return (
                 <Flex
@@ -685,21 +769,27 @@ export const AdminPanel = ({ currentUserId }: { currentUserId: string }) => {
                     <Text variant="small" css={{ color: theme.colors.foregroundSubtle }}>
                       Owner
                     </Text>
+                  ) : canManageProjectAccess === false ? (
+                    <Text variant="small" css={{ color: theme.colors.foregroundSubtle }}>
+                      Super admin only
+                    </Text>
                   ) : (
                     <Select
-                      options={["none", "view", "edit"]}
+                      options={["none", "view", "edit", "admin"]}
                       getLabel={(value) =>
                         value === "none"
                           ? "No access"
                           : value === "view"
                             ? "View"
-                            : "Edit"
+                            : value === "edit"
+                              ? "Edit"
+                              : "Admin"
                       }
                       value={accessLevel}
                       onChange={(value) =>
                         handleProjectAccessChange(
                           user.id,
-                          value as "none" | "view" | "edit"
+                          value as "none" | "view" | "edit" | "admin"
                         )
                       }
                       css={{ width: 120 }}

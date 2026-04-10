@@ -68,7 +68,7 @@ const tableStyles = css({
 });
 
 type ProjectsListItemProps = {
-  project: DashboardProject;
+  project: DashboardProject & { accessLevel?: "own" | "view" | "edit" | "admin" };
   userPlanFeatures: UserPlanFeatures;
   publisherHost: string;
   projectsTags: User["projectsTags"];

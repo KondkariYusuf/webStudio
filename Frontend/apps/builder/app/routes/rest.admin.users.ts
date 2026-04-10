@@ -5,15 +5,17 @@ import {
 import { findAuthenticatedUser } from "~/services/auth.server";
 import { createContext } from "~/shared/context.server";
 import {
-  getAllUsers,
+  getUsersVisibleToAdmin,
   updateUserRole,
   deleteUserById,
   createUserByAdmin,
   getUserById,
   AdminUserManagementError,
   type UserRole,
+  isSuperAdminUser,
+  canSubAdminManageUser,
 } from "~/shared/db/user.server";
-import { getAllProjectsForAdmin } from "~/shared/db/project-access.server";
+import { getProjectsVisibleToAdmin } from "~/shared/db/project-access.server";
 
 const jsonResponse = (
   body: unknown,
@@ -61,6 +63,9 @@ const getRequestData = async (request: Request) => {
       role: formData.get("role")?.toString(),
       email: formData.get("email")?.toString(),
       password: formData.get("password")?.toString(),
+      fullName: formData.get("fullName")?.toString(),
+      companyName: formData.get("companyName")?.toString(),
+      phone: formData.get("phone")?.toString(),
     },
   };
 };
@@ -80,10 +85,20 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     }
 
     const [users, projects] = await Promise.all([
-      getAllUsers(context),
-      getAllProjectsForAdmin(context),
+      getUsersVisibleToAdmin(context, fullUser),
+      getProjectsVisibleToAdmin(context, fullUser),
     ]);
-    return jsonResponse({ users, projects });
+    return jsonResponse({
+      users,
+      projects,
+      currentUser: {
+        id: fullUser.id,
+        email: fullUser.email,
+        role: fullUser.role,
+        isSuperAdmin: isSuperAdminUser(fullUser),
+        companyName: fullUser.companyName,
+      },
+    });
   } catch (error) {
     console.error("[RBAC] Loader error:", error);
     return getErrorResponse(error);
@@ -121,6 +136,21 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       if (!["admin", "editor", "viewer"].includes(role)) {
         return jsonResponse({ error: "Invalid role" }, { status: 400 });
       }
+      const targetUser = await getUserById(context, userId);
+      if (
+        canSubAdminManageUser({ actor: fullUser, target: targetUser }) === false
+      ) {
+        return jsonResponse(
+          { error: "You can only manage users from your own company" },
+          { status: 403 }
+        );
+      }
+      if (isSuperAdminUser(fullUser) === false && role === "admin") {
+        return jsonResponse(
+          { error: "Only the super admin can assign admin role" },
+          { status: 403 }
+        );
+      }
       await updateUserRole(context, { userId, role });
       return jsonResponse({ success: true });
     }
@@ -140,6 +170,15 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           { status: 400 }
         );
       }
+      const targetUser = await getUserById(context, userId);
+      if (
+        canSubAdminManageUser({ actor: fullUser, target: targetUser }) === false
+      ) {
+        return jsonResponse(
+          { error: "You can only manage users from your own company" },
+          { status: 403 }
+        );
+      }
       await deleteUserById(context, userId);
       return jsonResponse({ success: true });
     }
@@ -147,24 +186,62 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     if (actionType === "createUser") {
       const email =
         typeof values?.email === "string" ? values.email : undefined;
+      const fullName =
+        typeof values?.fullName === "string" ? values.fullName : undefined;
+      const companyName =
+        typeof values?.companyName === "string"
+          ? values.companyName
+          : undefined;
+      const phone =
+        typeof values?.phone === "string" ? values.phone : undefined;
       const role = (
         typeof values?.role === "string" ? values.role : "viewer"
       ) as UserRole;
       const password =
         typeof values?.password === "string" ? values.password : undefined;
-      if (!email || !password) {
+      if (!email || !password || !fullName || !companyName || !phone) {
         return jsonResponse(
-          { error: "email and password are required" },
+          { error: "name, company name, phone, email and password are required" },
           { status: 400 }
         );
       }
       if (!["admin", "editor", "viewer"].includes(role)) {
         return jsonResponse({ error: "Invalid role" }, { status: 400 });
       }
+      if (isSuperAdminUser(fullUser) === false && role === "admin") {
+        return jsonResponse(
+          { error: "Only the super admin can create admin users" },
+          { status: 403 }
+        );
+      }
+      if (
+        isSuperAdminUser(fullUser) === false &&
+        (fullUser.companyName?.trim().length ?? 0) === 0
+      ) {
+        return jsonResponse(
+          { error: "Sub-admin must have a company name before creating users" },
+          { status: 403 }
+        );
+      }
+      if (
+        isSuperAdminUser(fullUser) === false &&
+        fullUser.companyName &&
+        fullUser.companyName.trim().toLowerCase() !== companyName.trim().toLowerCase()
+      ) {
+        return jsonResponse(
+          { error: "Sub-admins can only create users in their own company" },
+          { status: 403 }
+        );
+      }
       const newUser = await createUserByAdmin(context, {
         email,
         role,
         password,
+        fullName,
+        companyName: isSuperAdminUser(fullUser)
+          ? companyName
+          : fullUser.companyName ?? companyName,
+        phone,
       });
       return jsonResponse({ success: true, user: newUser });
     }

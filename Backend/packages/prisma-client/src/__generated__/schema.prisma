@@ -59,10 +59,15 @@ model Asset {
 model User {
   id               String             @id @default(uuid())
   email            String?            @unique
+  phone            String?
   passwordHash     String?
   provider         String?
   image            String?
   username         String?
+  fullName         String?
+  companyName      String?
+  approved         Boolean            @default(false)
+  role             String             @default("viewer")
   createdAt        DateTime           @default(now()) @db.Timestamptz(3)
   team             Team?              @relation(fields: [teamId], references: [id])
   teamId           String?
@@ -71,6 +76,24 @@ model User {
   clientReferences ClientReferences[]
   checkout         TransactionLog[]
   products         UserProduct[]
+  grantedProjectAccess UserProjectAccess[] @relation("GrantedProjectAccess")
+  projectAccess       UserProjectAccess[] @relation("UserProjectAccess")
+}
+
+model UserProjectAccess {
+  id          String   @id @default(uuid())
+  userId      String
+  projectId   String
+  accessLevel String   @default("view")
+  grantedBy   String
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+
+  user       User    @relation("UserProjectAccess", fields: [userId], references: [id])
+  project    Project @relation(fields: [projectId], references: [id])
+  grantedByUser User @relation("GrantedProjectAccess", fields: [grantedBy], references: [id])
+
+  @@unique([userId, projectId])
+  @@index([projectId])
 }
 
 // User client references in external services like stripe etc
@@ -156,6 +179,7 @@ model Project {
   files                     File[]
   projectDomain             ProjectDomain[]
   authorizationToken        AuthorizationToken[]
+  userProjectAccess         UserProjectAccess[]
   previewImageAsset         Asset?                       @relation(fields: [previewImageAssetId, id], references: [id, projectId])
   previewImageAssetId       String?
   marketplaceApprovalStatus MarketplaceApprovalStatus    @default(UNLISTED)

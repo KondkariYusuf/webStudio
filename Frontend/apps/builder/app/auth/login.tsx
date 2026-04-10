@@ -6,11 +6,14 @@ import {
   InputField,
   rawTheme,
   Text,
+  toast,
   theme,
 } from "@webstudio-is/design-system";
 import { WebstudioIcon } from "@webstudio-is/icons";
 import { Link, useSearchParams } from "@remix-run/react";
+import { useEffect } from "react";
 import { authPath, loginPath, registerPath } from "~/shared/router-utils";
+import { phoneNumberPattern } from "~/shared/validation/phone";
 
 const globalStyles = globalCss({
   body: {
@@ -33,6 +36,12 @@ export const Login = ({
 }: LoginProps) => {
   const [searchParams] = useSearchParams();
   const returnTo = searchParams.get("returnTo") ?? undefined;
+
+  useEffect(() => {
+    if (errorMessage) {
+      toast.error(errorMessage);
+    }
+  }, [errorMessage]);
 
   globalStyles();
   return (
@@ -71,6 +80,23 @@ export const Login = ({
                 action={authPath({ provider: "password-register" })}
               >
                 <Flex direction="column" gap="2">
+                  <InputField
+                    name="fullName"
+                    required
+                    placeholder="Full Name"
+                  />
+                  <InputField
+                    name="companyName"
+                    required
+                    placeholder="Company Name"
+                  />
+                  <InputField
+                    name="phone"
+                    type="tel"
+                    required
+                    placeholder="Phone Number"
+                    pattern={phoneNumberPattern}
+                  />
                   <InputField
                     name="email"
                     type="email"

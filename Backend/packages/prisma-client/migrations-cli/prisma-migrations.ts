@@ -7,9 +7,9 @@ import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
 import { x } from "tinyexec";
-import { createPrisma } from "../src/prisma";
-import { UserError } from "./errors";
-import { PrismaClient } from "../src/__generated__";
+import { createPrisma } from "../src/prisma.ts";
+import { UserError } from "./errors.ts";
+import { PrismaClient } from "../src/__generated__/index.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 

@@ -15,7 +15,7 @@ import { builderUrl } from "~/shared/router-utils";
 type ProjectMenuProps = {
   projectId: string;
   onOpenChange: (dialog: DialogType) => void;
-  accessLevel?: "own" | "view" | "edit";
+  accessLevel?: "own" | "view" | "edit" | "admin";
 };
 
 export const ProjectMenu = ({
@@ -25,7 +25,8 @@ export const ProjectMenu = ({
 }: ProjectMenuProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const handleDuplicateProject = useDuplicateProject(projectId);
-  const canManageProject = accessLevel === "own" || accessLevel === "edit";
+  const canManageProject =
+    accessLevel === "own" || accessLevel === "edit" || accessLevel === "admin";
   const canShareOrDelete = accessLevel === "own";
   const canOpenSettings = accessLevel === "own";
 

@@ -4,12 +4,15 @@ import {
 } from "@remix-run/server-runtime";
 import { findAuthenticatedUser } from "~/services/auth.server";
 import { createContext } from "~/shared/context.server";
-import { getUserById } from "~/shared/db/user.server";
 import {
-  getProjectAccessList,
+  getUserById,
+  canSubAdminManageUser,
+} from "~/shared/db/user.server";
+import {
+  getProjectAccessListVisibleToAdmin,
   grantProjectAccess,
   revokeProjectAccess,
-  getAllProjectsForAdmin,
+  getProjectsVisibleToAdmin,
   type AccessLevel,
 } from "~/shared/db/project-access.server";
 
@@ -67,7 +70,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     const projectId = url.searchParams.get("projectId");
 
     if (projectId === "all") {
-      const projects = await getAllProjectsForAdmin(context);
+      const projects = await getProjectsVisibleToAdmin(context, fullUser);
       return jsonResponse({ projects });
     }
 
@@ -75,7 +78,16 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       return jsonResponse({ error: "projectId is required" }, { status: 400 });
     }
 
-    const accessList = await getProjectAccessList(context, projectId);
+    const visibleProjects = await getProjectsVisibleToAdmin(context, fullUser);
+    if (visibleProjects.some((project) => project.id === projectId) === false) {
+      return jsonResponse({ error: "Forbidden" }, { status: 403 });
+    }
+
+    const accessList = await getProjectAccessListVisibleToAdmin(
+      context,
+      fullUser,
+      projectId
+    );
     return jsonResponse({ accessList });
   } catch (error) {
     console.error("[RBAC] Project access loader error:", error);
@@ -119,11 +131,24 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           { status: 400 }
         );
       }
-      if (!["view", "edit"].includes(accessLevel)) {
+      if (!["view", "edit", "admin"].includes(accessLevel)) {
         return jsonResponse(
           { error: "Invalid accessLevel" },
           { status: 400 }
         );
+      }
+      const targetUser = await getUserById(context, userId);
+      if (
+        canSubAdminManageUser({ actor: fullUser, target: targetUser }) === false
+      ) {
+        return jsonResponse(
+          { error: "You can only manage users from your own company" },
+          { status: 403 }
+        );
+      }
+      const visibleProjects = await getProjectsVisibleToAdmin(context, fullUser);
+      if (visibleProjects.some((project) => project.id === projectId) === false) {
+        return jsonResponse({ error: "Forbidden" }, { status: 403 });
       }
 
       const result = await grantProjectAccess(context, {
@@ -145,6 +170,19 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           { error: "userId and projectId are required" },
           { status: 400 }
         );
+      }
+      const targetUser = await getUserById(context, userId);
+      if (
+        canSubAdminManageUser({ actor: fullUser, target: targetUser }) === false
+      ) {
+        return jsonResponse(
+          { error: "You can only manage users from your own company" },
+          { status: 403 }
+        );
+      }
+      const visibleProjects = await getProjectsVisibleToAdmin(context, fullUser);
+      if (visibleProjects.some((project) => project.id === projectId) === false) {
+        return jsonResponse({ error: "Forbidden" }, { status: 403 });
       }
       const result = await revokeProjectAccess(context, { userId, projectId });
       return jsonResponse(result);

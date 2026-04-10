@@ -53,7 +53,7 @@ const PublishedLink = ({
 type ProjectWithExtras = DashboardProject & {
   domainsVirtual?: Array<{ domain: string; status: string; verified: boolean }>;
   previewImageAsset?: { name: string };
-  accessLevel?: "own" | "view" | "edit";
+  accessLevel?: "own" | "view" | "edit" | "admin";
 };
 
 type ProjectCardProps = {
