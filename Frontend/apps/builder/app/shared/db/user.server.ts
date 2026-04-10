@@ -26,6 +26,16 @@ const userProfileSchema = z.object({
     .regex(phoneNumberRegex, phoneNumberErrorMessage),
 });
 
+const tenantPhoneSchema = z
+  .string()
+  .trim()
+  .regex(phoneNumberRegex, phoneNumberErrorMessage);
+
+const getTenantPhoneOrNull = (phone: string) => {
+  const parsed = tenantPhoneSchema.safeParse(phone);
+  return parsed.success ? parsed.data : null;
+};
+
 export type User = Omit<
   Database["public"]["Tables"]["User"]["Row"],
   "projectsTags"
@@ -151,6 +161,58 @@ export const createOrLoginWithDev = async (
 };
 
 const normalizeEmail = (email: string) => email.trim().toLowerCase();
+const normalizeCompanyName = (companyName: string | null | undefined) =>
+  companyName?.trim().toLowerCase() ?? "";
+const normalizePhoneDigits = (phone: string | null | undefined) =>
+  (phone ?? "").replace(/\D/g, "");
+
+const slugifyTenantSegment = (value: string) =>
+  value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .replace(/-+/g, "-");
+
+export const generateTenantId = ({
+  companyName,
+  phone,
+}: {
+  companyName: string;
+  phone: string;
+}) => {
+  const companySegment =
+    slugifyTenantSegment(companyName).slice(0, 40) || "company";
+  const phoneSegment = normalizePhoneDigits(phone) || "0000000000";
+
+  return `tenant-${companySegment}-${phoneSegment}`;
+};
+
+const ensureTenantTeam = async (context: AppContext, tenantId: string) => {
+  const existingTeam = await context.postgrest.client
+    .from("Team")
+    .select("id")
+    .eq("id", tenantId)
+    .maybeSingle();
+
+  if (existingTeam.error) {
+    console.error(existingTeam.error);
+    throw new Error("Failed to validate tenant");
+  }
+
+  if (existingTeam.data?.id) {
+    return;
+  }
+
+  const createdTeam = await context.postgrest.client.from("Team").insert({
+    id: tenantId,
+  });
+
+  if (createdTeam.error) {
+    console.error(createdTeam.error);
+    throw new Error("Failed to create tenant");
+  }
+};
 
 const findExistingSubAdminByCompany = async (
   context: AppContext,
@@ -203,7 +265,20 @@ export const registerWithEmailPassword = async (
 ): Promise<AuthUser> => {
   const authParsed = emailPasswordSchema.safeParse(credentials);
   const profileParsed = userProfileSchema.safeParse(credentials);
-  if (authParsed.success === false || profileParsed.success === false) {
+
+  if (authParsed.success === false) {
+    throw new Error("Invalid registration details");
+  }
+
+  if (profileParsed.success === false) {
+    const hasPhoneIssue = profileParsed.error.issues.some((issue) =>
+      issue.path.includes("phone")
+    );
+
+    if (hasPhoneIssue) {
+      throw new Error(phoneNumberErrorMessage);
+    }
+
     throw new Error("Invalid registration details");
   }
 
@@ -226,6 +301,17 @@ export const registerWithEmailPassword = async (
   }
 
   await ensureCompanyHasNoSubAdmin(context, profileParsed.data.companyName);
+  const tenantPhone = getTenantPhoneOrNull(profileParsed.data.phone);
+
+  if (tenantPhone == null) {
+    throw new Error(phoneNumberErrorMessage);
+  }
+
+  const tenantId = generateTenantId({
+    companyName: profileParsed.data.companyName,
+    phone: tenantPhone,
+  });
+  await ensureTenantTeam(context, tenantId);
 
   const id = crypto.randomUUID();
 
@@ -241,6 +327,7 @@ export const registerWithEmailPassword = async (
     passwordHash,
     approved: true,
     role: "admin",
+    teamId: tenantId,
   });
 
   if (newUser.error) {
@@ -336,9 +423,6 @@ export const isSubAdminUser = (user: {
   email?: string | null;
   role?: string | null;
 }) => user.role === "admin" && isSuperAdminUser(user) === false;
-
-const normalizeCompanyName = (companyName: string | null | undefined) =>
-  companyName?.trim().toLowerCase() ?? "";
 
 export const isSameCompanyUser = (
   left: { companyName?: string | null },
@@ -470,7 +554,19 @@ export const createUserByAdmin = async (
     phone,
   });
 
-  if (parsed.success === false || profileParsed.success === false) {
+  if (parsed.success === false) {
+    throw new AdminUserManagementError("Invalid user details", 400);
+  }
+
+  if (profileParsed.success === false) {
+    const hasPhoneIssue = profileParsed.error.issues.some((issue) =>
+      issue.path.includes("phone")
+    );
+
+    if (hasPhoneIssue) {
+      throw new AdminUserManagementError(phoneNumberErrorMessage, 400);
+    }
+
     throw new AdminUserManagementError("Invalid user details", 400);
   }
 
@@ -507,6 +603,19 @@ export const createUserByAdmin = async (
     }
   }
 
+  const tenantPhone = getTenantPhoneOrNull(profileParsed.data.phone);
+
+  if (tenantPhone == null) {
+    throw new AdminUserManagementError(phoneNumberErrorMessage, 400);
+  }
+
+  const resolvedTenantId = generateTenantId({
+    companyName: profileParsed.data.companyName,
+    phone: tenantPhone,
+  });
+
+  await ensureTenantTeam(context, resolvedTenantId);
+
   const result = await context.postgrest.client.from("User").insert({
     id,
     email: normalizedEmail,
@@ -519,6 +628,7 @@ export const createUserByAdmin = async (
     passwordHash,
     approved: true,
     role,
+    teamId: resolvedTenantId,
   });
 
   if (result.error) {
