@@ -16,6 +16,8 @@
     "start": "remix-serve build/server/index.js",
     "dev": "remix vite:dev",
     "dev:auth": "cross-env DEBUG=OAuth2Strategy,ws:* remix vite:dev",
+    "migration": "npm run migrations",
+    "migrations": "npm run migrations --prefix ../../..",
     "typecheck": "tsgo --noEmit --emitDeclarationOnly false",
     "test": "vitest run"
   },

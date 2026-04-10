@@ -16,7 +16,7 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "storybook:dev": "storybook dev -p 6006",
     "storybook:build": "storybook build",
-    "migrations": "npm run generate -w @webstudio-is/prisma-client && npm run migrations -w @webstudio-is/prisma-client -- migrate --dev --cwd ../../Frontend/apps/builder",
+    "migrations": "npm run generate -w @webstudio-is/prisma-client && npm run migrations -w @webstudio-is/prisma-client -- migrate --dev --cwd ../../../Frontend/apps/builder",
     "build-figma-tokens": "npm run build-figma-tokens -w @webstudio-is/design-system",
     "postinstall": "patch-package"
   },
@@ -35,6 +35,7 @@
   },
   "devDependencies": {
     "@prisma/client": "^5.12.1",
-    "prisma": "^5.12.1"
+    "prisma": "^5.12.1",
+    "tsx": "^4.21.0"
   }
 }

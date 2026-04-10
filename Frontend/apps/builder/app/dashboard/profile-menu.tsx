@@ -71,11 +71,11 @@ const ProfileButton = forwardRef<
         border: "none",
         transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
         "&:hover": {
-          background: "#F1F5F9",
+          background: theme.colors.backgroundControls,
           transform: "translateY(-1px)",
         },
         "&[data-state=open]": {
-          background: "#F1F5F9",
+          background: theme.colors.backgroundControls,
           boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
         }
       }}
@@ -88,10 +88,10 @@ const ProfileButton = forwardRef<
           width: 36,
           height: 36,
           borderRadius: "12px",
-          border: "2px solid #E2E8F0",
-          boxShadow: "0 4px 12px rgba(43, 0, 204, 0.15)",
-          background: image ? `url(${image}) center/cover` : "linear-gradient(135deg, #2b00cc 0%, #4411dd 100%)",
-          color: "#FFFFFF",
+          border: `2px solid ${theme.colors.borderMain}`,
+          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+          background: image ? `url(${image}) center/cover` : theme.colors.backgroundTopbar,
+          color: theme.colors.backgroundPanel,
           fontWeight: "700",
           fontSize: "14px",
           flexShrink: 0,
@@ -105,7 +105,7 @@ const ProfileButton = forwardRef<
           css={{
             fontSize: "13.5px",
             fontWeight: "600",
-            color: "#0F172A",
+            color: theme.colors.foregroundMain,
             whiteSpace: "nowrap",
             overflow: "hidden",
             textOverflow: "ellipsis",
@@ -120,7 +120,7 @@ const ProfileButton = forwardRef<
         <Text
           css={{
             fontSize: "11px",
-            color: "#64748B",
+            color: theme.colors.foregroundSubtle,
             whiteSpace: "nowrap",
             overflow: "hidden",
             textOverflow: "ellipsis",
@@ -133,7 +133,7 @@ const ProfileButton = forwardRef<
           {email}
         </Text>
       </Flex>
-      <ChevronDownIcon size={12} style={{ color: "#64748B", marginLeft: "auto" }} />
+      <ChevronDownIcon size={12} style={{ color: theme.colors.foregroundSubtle, marginLeft: "auto" }} />
     </Button>
   );
 });
@@ -166,7 +166,7 @@ export const ProfileMenu = ({
             <Text weight="bold" css={{ display: "block", marginBottom: "2px" }}>
                {user.username ?? (user.email ? user.email.split("@")[0] : defaultUserName)}
             </Text>
-            <Text variant="small" css={{ color: "#64748B", fontSize: "11px" }}>{user.email}</Text>
+            <Text variant="small" css={{ color: theme.colors.foregroundSubtle, fontSize: "11px" }}>{user.email}</Text>
           </Flex>
         </DropdownMenuLabel>
         
@@ -208,7 +208,7 @@ export const ProfileMenu = ({
         )}
         
         <DropdownMenuSeparator />
-        <DropdownMenuItem onSelect={() => navigate(logoutPath())} css={{ color: "#DC2626", gap: theme.spacing[3] }}>
+        <DropdownMenuItem onSelect={() => navigate(logoutPath())} css={{ color: theme.colors.destructiveMain, gap: theme.spacing[3] }}>
           <Text>Sign Out</Text>
         </DropdownMenuItem>
       </DropdownMenuContent>
