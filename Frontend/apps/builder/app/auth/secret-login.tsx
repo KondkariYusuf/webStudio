@@ -21,7 +21,20 @@ export const SecretLogin = () => {
             placeholder="Auth secret"
             css={{ flexGrow: 1 }}
           />
-          <Button type="submit">Login</Button>
+          <Button 
+            type="submit"
+            css={{ 
+              backgroundColor: theme.colors.backgroundTopbar,
+              color: theme.colors.backgroundPanel,
+              border: "none",
+              boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
+              "&:hover": {
+                backgroundColor: theme.colors.backgroundTopbarHover,
+              }
+            }}
+          >
+            Login
+          </Button>
         </Flex>
       </form>
     );
@@ -30,8 +43,16 @@ export const SecretLogin = () => {
   return (
     <Button
       onClick={() => setShow(true)}
-      color="neutral"
-      css={{ height: theme.spacing[15] }}
+      css={{ 
+        height: theme.spacing[15],
+        backgroundColor: theme.colors.backgroundTopbar,
+        color: theme.colors.backgroundPanel,
+        border: "none",
+        boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
+        "&:hover": {
+          backgroundColor: theme.colors.backgroundTopbarHover,
+        }
+      }}
     >
       Login with Secret
     </Button>

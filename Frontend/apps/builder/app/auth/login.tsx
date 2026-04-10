@@ -6,14 +6,11 @@ import {
   InputField,
   rawTheme,
   Text,
-  toast,
   theme,
 } from "@webstudio-is/design-system";
 import { WebstudioIcon } from "@webstudio-is/icons";
 import { Link, useSearchParams } from "@remix-run/react";
-import { useEffect } from "react";
 import { authPath, loginPath, registerPath } from "~/shared/router-utils";
-import { phoneNumberPattern } from "~/shared/validation/phone";
 
 const globalStyles = globalCss({
   body: {
@@ -37,12 +34,6 @@ export const Login = ({
   const [searchParams] = useSearchParams();
   const returnTo = searchParams.get("returnTo") ?? undefined;
 
-  useEffect(() => {
-    if (errorMessage) {
-      toast.error(errorMessage);
-    }
-  }, [errorMessage]);
-
   globalStyles();
   return (
     <Flex
@@ -50,7 +41,7 @@ export const Login = ({
       justify="center"
       css={{
         height: "100vh",
-        background: theme.colors.brandBackgroundDashboard,
+        background: theme.colors.backgroundWorkspace,
       }}
     >
       <Flex
@@ -63,11 +54,28 @@ export const Login = ({
           padding: theme.spacing[17],
           borderRadius: theme.spacing[5],
           [`@media (min-width: ${rawTheme.spacing[35]})`]: {
-            backgroundColor: `rgba(255, 255, 255, 0.5)`,
+            backgroundColor: theme.colors.backgroundPanel,
+            boxShadow: `0 4px 20px rgba(0, 0, 0, 0.05)`,
           },
         }}
       >
-        <WebstudioIcon size={48} />
+        <div
+          style={{
+            width: 48,
+            height: 48,
+            background: theme.colors.backgroundTopbar,
+            borderRadius: "12px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: theme.colors.backgroundPanel,
+            fontWeight: "bold",
+            fontSize: "24px",
+            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
+          }}
+        >
+          W
+        </div>
         <Text variant="brandSectionTitle" as="h1" align="center">
           {mode === "register" ? "Create your account" : "Welcome to Webstudio"}
         </Text>
@@ -80,23 +88,6 @@ export const Login = ({
                 action={authPath({ provider: "password-register" })}
               >
                 <Flex direction="column" gap="2">
-                  <InputField
-                    name="fullName"
-                    required
-                    placeholder="Full Name"
-                  />
-                  <InputField
-                    name="companyName"
-                    required
-                    placeholder="Company Name"
-                  />
-                  <InputField
-                    name="phone"
-                    type="tel"
-                    required
-                    placeholder="Phone Number"
-                    pattern={phoneNumberPattern}
-                  />
                   <InputField
                     name="email"
                     type="email"
@@ -115,8 +106,16 @@ export const Login = ({
                   />
                   <Button
                     type="submit"
-                    color="primary"
-                    css={{ height: theme.spacing[15] }}
+                    css={{ 
+                      height: theme.spacing[15],
+                      backgroundColor: theme.colors.backgroundTopbar,
+                      color: theme.colors.backgroundPanel,
+                      border: "none",
+                      boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
+                      "&:hover": {
+                        backgroundColor: theme.colors.backgroundTopbarHover,
+                      }
+                    }}
                   >
                     Create Account
                   </Button>
@@ -146,8 +145,16 @@ export const Login = ({
                   />
                   <Button
                     type="submit"
-                    color="primary"
-                    css={{ height: theme.spacing[15] }}
+                    css={{ 
+                      height: theme.spacing[15],
+                      backgroundColor: theme.colors.backgroundTopbar,
+                      color: theme.colors.backgroundPanel,
+                      border: "none",
+                      boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
+                      "&:hover": {
+                        backgroundColor: theme.colors.backgroundTopbarHover,
+                      }
+                    }}
                   >
                     Log in with Email
                   </Button>
@@ -155,7 +162,16 @@ export const Login = ({
               </form>
             )}
 
-            <Text align="center">
+            <Text align="center" css={{ 
+              "& a": { 
+                color: theme.colors.backgroundTopbar, 
+                textDecoration: "none",
+                borderBottom: `1px solid ${theme.colors.backgroundTopbar}`,
+                fontWeight: 500, 
+                transition: "all 0.2s ease",
+                "&:hover": { color: "#000000", borderBottomColor: "#000000" } 
+              } 
+            }}>
               {mode === "register" ? (
                 <Link to={loginPath({ returnTo })}>Already have an account? Log in</Link>
               ) : (

@@ -8,6 +8,7 @@ import {
   DropdownMenuLabel,
   Button,
   MenuCheckedIcon,
+  theme,
 } from "@webstudio-is/design-system";
 import {
   ChevronDownIcon,
@@ -138,19 +139,19 @@ export const SortSelect = ({ value, onValueChange }: SortSelectProps) => {
           prefix={sortIcon} 
           suffix={<ChevronDownIcon />}
           css={{
-            color: "#64748B",
+            color: theme.colors.foregroundSubtle,
             transition: "all 0.2s ease",
             borderRadius: "8px",
             "&:hover": {
-              background: "#F1F5F9",
-              color: "#0F172A",
+              background: theme.colors.backgroundControls,
+              color: theme.colors.foregroundMain,
             },
             "&[data-state=open]": {
-              background: "#F1F5F9",
-              color: "#0F172A",
+              background: theme.colors.backgroundControls,
+              color: theme.colors.foregroundMain,
             },
             "&:focus-visible": {
-              boxShadow: "0 0 0 2px #FFFFFF, 0 0 0 4px #2b00cc",
+              boxShadow: `0 0 0 2px ${theme.colors.backgroundPanel}, 0 0 0 4px ${theme.colors.backgroundTopbar}`,
             }
           }}
         >

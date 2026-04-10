@@ -53,7 +53,7 @@ const PublishedLink = ({
 type ProjectWithExtras = DashboardProject & {
   domainsVirtual?: Array<{ domain: string; status: string; verified: boolean }>;
   previewImageAsset?: { name: string };
-  accessLevel?: "own" | "view" | "edit" | "admin";
+  accessLevel?: "own" | "view" | "edit";
 };
 
 type ProjectCardProps = {
@@ -129,18 +129,18 @@ export const ProjectCard = ({
       hidden={isHidden}
       css={{
         transition: "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
-        border: "1px solid #E2E8F0",
+        border: `1px solid ${theme.colors.borderMain}`,
         borderRadius: "18px",
         overflow: "hidden",
-        background: "#FFFFFF",
+        background: theme.colors.backgroundPanel,
         "&:hover": {
           transform: "translateY(-8px)",
           boxShadow: `
             0 10px 15px -3px rgba(0, 0, 0, 0.05),
             0 25px 40px -12px rgba(0, 0, 0, 0.08),
-            0 0 0 1px rgba(43, 0, 204, 0.12)
+            0 0 0 1px rgba(0, 0, 0, 0.1)
           `,
-          borderColor: "rgba(43, 0, 204, 0.35)",
+          borderColor: "rgba(0, 0, 0, 0.15)",
         },
       }}
       {...props}
@@ -148,7 +148,7 @@ export const ProjectCard = ({
       <CardContent
         css={{
           aspectRatio: "16/10",
-          background: "linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%)",
+          background: theme.colors.backgroundControls,
           position: "relative",
           overflow: "hidden",
           [`&:hover`]: {
@@ -207,8 +207,8 @@ export const ProjectCard = ({
         css={{
           padding: "16px",
           gap: "12px",
-          background: "#FFFFFF",
-          borderTop: "1px solid #E2E8F0",
+          background: theme.colors.backgroundPanel,
+          borderTop: `1px solid ${theme.colors.borderMain}`,
         }}
       >
         <Flex direction="column" gap="1" grow overflow="hidden">
@@ -219,7 +219,7 @@ export const ProjectCard = ({
               truncate
               css={{
                  textTransform: "none",
-                 color: "#0F172A",
+                 color: theme.colors.foregroundMain,
                  fontWeight: "600",
                  fontSize: "14px",
                  letterSpacing: "-0.01em"
@@ -230,7 +230,7 @@ export const ProjectCard = ({
             <Tooltip
               variant="wrapped"
               content={
-                <Text variant="small" css={{ color: "#64748B" }}>
+                <Text variant="small" css={{ color: theme.colors.foregroundSubtle }}>
                   Created: {formatDate(createdAt)}
                   {latestBuildVirtual?.updatedAt && (
                     <>
@@ -247,7 +247,7 @@ export const ProjectCard = ({
                 </Text>
               }
             >
-              <Box css={{ color: "#94A3B8", cursor: "help", opacity: 0.6 }}>
+              <Box css={{ color: theme.colors.foregroundSubtle, cursor: "help", opacity: 0.6 }}>
                 <InfoCircleIcon size={12} className={infoIconStyle()} />
               </Box>
             </Tooltip>
@@ -255,7 +255,7 @@ export const ProjectCard = ({
           {isPublished ? (
             <PublishedLink domain={displayDomain} tabIndex={-1} />
           ) : (
-            <Text css={{ color: "#64748B", fontSize: "12px" }}>Not published</Text>
+            <Text css={{ color: theme.colors.foregroundSubtle, fontSize: "12px" }}>Not published</Text>
           )}
         </Flex>
         <ProjectMenu

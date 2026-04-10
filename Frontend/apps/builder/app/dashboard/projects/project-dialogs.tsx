@@ -104,11 +104,11 @@ const DialogContent = ({
       >
         {description && (
           <DialogDescription asChild>
-            <Text as="p" css={{ marginBottom: theme.spacing["4"], color: "#64748B", fontSize: "14px", lineHeight: "1.5" }}>{description}</Text>
+            <Text as="p" css={{ marginBottom: theme.spacing["4"], color: theme.colors.foregroundSubtle, fontSize: "14px", lineHeight: "1.5" }}>{description}</Text>
           </DialogDescription>
         )}
         <Box css={{ marginBottom: theme.spacing["2"] }}>
-          {typeof label === "string" ? <Label css={{ fontWeight: 600, color: "#0F172A" }}>{label}</Label> : label}
+          {typeof label === "string" ? <Label css={{ fontWeight: 600, color: theme.colors.foregroundMain }}>{label}</Label> : label}
         </Box>
         <InputField
           placeholder={placeholder}
@@ -123,21 +123,21 @@ const DialogContent = ({
           {errors && <Text color="destructive" css={{ fontSize: "12px" }}>{errors}</Text>}
         </Box>
       </Flex>
-      <DialogActions css={{ borderTop: "1px solid #E2E8F0", paddingTop: theme.spacing["4"], marginTop: theme.spacing["4"] }}>
+      <DialogActions css={{ borderTop: `1px solid ${theme.colors.borderMain}`, paddingTop: theme.spacing["4"], marginTop: theme.spacing["4"] }}>
         {primaryButton}
         <DialogClose asChild>
           <Button 
             color="ghost"
             css={{
               borderRadius: "8px",
-              color: "#64748B",
+              color: theme.colors.foregroundSubtle,
               fontSize: "14px",
               fontWeight: 500,
               padding: "8px 16px",
               transition: "all 0.2s ease",
               "&:hover": {
-                background: "#F1F5F9",
-                color: "#0F172A",
+                background: theme.colors.backgroundControls,
+                color: theme.colors.foregroundMain,
               }
             }}
           >Cancel</Button>
@@ -198,25 +198,25 @@ export const CreateProject = ({
           css={{
             height: "44px",
             paddingInline: theme.spacing[8],
-            backgroundColor: "#2b00cc",
-            color: "white",
+            backgroundColor: theme.colors.backgroundTopbar,
+            color: theme.colors.backgroundPanel,
             borderRadius: "12px",
-            boxShadow: "0 4px 12px rgba(43, 0, 204, 0.2)",
+            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
             border: "none",
             fontWeight: "600",
             fontSize: "14px",
             transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
             "&:hover": {
-              backgroundColor: "#2200a3",
-              color: "#FFFFFF",
+              backgroundColor: theme.colors.backgroundTopbarHover,
+              color: theme.colors.backgroundPanel,
               transform: "translateY(-1px)",
-              boxShadow: "0 6px 14px rgba(34, 0, 163, 0.3)",
+              boxShadow: "0 6px 14px rgba(0, 0, 0, 0.3)",
             },
             "&:active": {
               transform: "translateY(0)",
             },
             "&:focus-visible": {
-              boxShadow: "0 0 0 2px #FFFFFF, 0 0 0 4px #2b00cc",
+              boxShadow: `0 0 0 2px ${theme.colors.backgroundPanel}, 0 0 0 4px ${theme.colors.backgroundTopbar}`,
               outline: "none",
             }
           }}
@@ -237,22 +237,22 @@ export const CreateProject = ({
             type="submit"
             css={{
               borderRadius: "8px",
-              background: "#2b00cc",
-              color: "#ffffff",
+              background: theme.colors.backgroundTopbar,
+              color: theme.colors.backgroundPanel,
               fontSize: "14px",
               fontWeight: 600,
               padding: "8px 16px",
               border: "none",
-              boxShadow: "0 4px 10px rgba(43, 0, 204, 0.2)",
+              boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)",
               transition: "all 0.2s ease",
               "&:hover": {
-                background: "#2200a3",
-                boxShadow: "0 6px 14px rgba(34, 0, 163, 0.3)",
-                color: "#FFFFFF",
+                background: theme.colors.backgroundTopbarHover,
+                boxShadow: "0 6px 14px rgba(0, 0, 0, 0.3)",
+                color: theme.colors.backgroundPanel,
                 transform: "translateY(-1px)",
               },
               "&:focus-visible": {
-                boxShadow: "0 0 0 2px #FFFFFF, 0 0 0 4px #2b00cc",
+                boxShadow: `0 0 0 2px ${theme.colors.backgroundPanel}, 0 0 0 4px ${theme.colors.backgroundTopbar}`,
               }
             }}
           >
@@ -325,22 +325,22 @@ export const RenameProjectDialog = ({
             state={state === "idle" ? undefined : "pending"}
             css={{
               borderRadius: "8px",
-              background: "#2b00cc",
-              color: "#ffffff",
+              background: theme.colors.backgroundTopbar,
+              color: theme.colors.backgroundPanel,
               fontSize: "14px",
               fontWeight: 600,
               padding: "8px 16px",
               border: "none",
-              boxShadow: "0 4px 10px rgba(43, 0, 204, 0.2)",
+              boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)",
               transition: "all 0.2s ease",
               "&:hover": {
-                background: "#2200a3",
-                boxShadow: "0 6px 14px rgba(34, 0, 163, 0.3)",
-                color: "#FFFFFF",
+                background: theme.colors.backgroundTopbarHover,
+                boxShadow: "0 6px 14px rgba(0, 0, 0, 0.3)",
+                color: theme.colors.backgroundPanel,
                 transform: "translateY(-1px)",
               },
               "&:focus-visible": {
-                boxShadow: "0 0 0 2px #FFFFFF, 0 0 0 4px #2b00cc",
+                boxShadow: `0 0 0 2px ${theme.colors.backgroundPanel}, 0 0 0 4px ${theme.colors.backgroundTopbar}`,
               }
             }}
           >
