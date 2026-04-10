@@ -33,8 +33,8 @@ import { AdminPanel } from "./admin/admin-panel";
 const globalStyles = globalCss({
   body: {
     margin: 0,
-    backgroundColor: "#F8FAFC",
-    color: "#0F172A",
+    backgroundColor: theme.colors.backgroundWorkspace,
+    color: theme.colors.backgroundTopbar,
   },
 });
 
@@ -90,25 +90,25 @@ const sidebarLinkStyle = css({
   borderRadius: "10px",
   outline: "none",
   transition: "all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1)",
-  color: "#64748B",
+  color: theme.colors.foregroundSubtle,
   fontWeight: 500,
   fontSize: "13px",
 
   "&:focus-visible": {
-    boxShadow: `0 0 0 2px #FFFFFF, 0 0 0 4px #2b00cc`,
+    boxShadow: `0 0 0 2px ${theme.colors.backgroundPanel}, 0 0 0 4px ${theme.colors.backgroundTopbar}`,
   },
   "&:hover": {
-    background: "#F1F5F9",
-    color: "#0F172A",
+    background: theme.colors.backgroundControls,
+    color: theme.colors.backgroundTopbar,
   },
   "&[aria-current=page]": {
-    background: "#F0ECFF",
-    color: "#2b00cc",
-    boxShadow: "0 1px 3px rgba(37,99,235,0.1), 0 2px 8px rgba(37,99,235,0.05)",
-    border: "1px solid #C9BFFF",
+    background: theme.colors.backgroundControls,
+    color: theme.colors.backgroundTopbar,
+    boxShadow: "0 1px 3px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.05)",
+    border: `1px solid ${theme.colors.borderMain}`,
     fontWeight: 600,
     "& svg": {
-       color: "#2b00cc",
+       color: theme.colors.backgroundTopbar,
        transform: "scale(1.05)",
     }
   }
@@ -203,10 +203,10 @@ export const Dashboard = () => {
           shrink={false}
           css={{
             width: "280px",
-            borderRight: "1px solid #E2E8F0",
+            borderRight: `1px solid ${theme.colors.borderMain}`,
             position: "sticky",
             top: 0,
-            background: "#FFFFFF",
+            background: theme.colors.backgroundPanel,
           }}
         >
           <Flex
@@ -222,15 +222,15 @@ export const Dashboard = () => {
               style={{
                 width: 32,
                 height: 32,
-                background: "linear-gradient(135deg, #2b00cc 0%, #4411dd 100%)",
+                background: theme.colors.backgroundTopbar,
                 borderRadius: "8px",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                color: "white",
+                color: theme.colors.backgroundPanel,
                 fontWeight: "bold",
                 fontSize: "16px",
-                boxShadow: "0 4px 12px rgba(43, 0, 204, 0.3)",
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
               }}
             >
               W
@@ -239,7 +239,7 @@ export const Dashboard = () => {
               css={{
                 fontSize: "18px",
                 fontWeight: "700",
-                color: "#0F172A",
+                color: theme.colors.foregroundMain,
                 letterSpacing: "-0.04em",
               }}
             >
@@ -264,35 +264,36 @@ export const Dashboard = () => {
                 justifyContent: "between",
                 height: "36px",
                 width: "100%",
-                background: "#F1F5F9",
-                border: "1px solid #E2E8F0",
+                boxSizing: "border-box",
+                background: theme.colors.backgroundPanel,
+                border: `1px solid ${theme.colors.borderMain}`,
                 borderRadius: "8px",
                 paddingInline: theme.spacing[3],
                 cursor: "text",
                 transition: "all 0.2s ease",
                 "&:hover": {
-                  background: "#E2E8F0",
-                  borderColor: "#CBD5E1",
+                  background: theme.colors.backgroundControls,
+                  borderColor: theme.colors.borderMain,
                 },
                 "&:focus-within": {
-                  background: "#FFFFFF",
-                  borderColor: "#2b00cc",
-                  boxShadow: "0 0 0 3px rgba(43, 0, 204, 0.15)",
+                  background: theme.colors.backgroundPanel,
+                  borderColor: theme.colors.backgroundTopbar,
+                  boxShadow: "0 0 0 3px rgba(0, 0, 0, 0.1)",
                 }
               }}
             >
-              <Flex align="center" gap="2" css={{ color: "#64748B", flex: 1 }}>
+              <Flex align="center" gap="2" css={{ color: theme.colors.foregroundSubtle, flex: 1 }}>
                 <Search />
               </Flex>
               <Box
                 css={{
                   padding: "2px 6px",
-                  background: "#E2E8F0",
-                  border: "1px solid #CBD5E1",
+                  background: theme.colors.backgroundControls,
+                  border: `1px solid ${theme.colors.borderMain}`,
                   borderRadius: "4px",
                   fontSize: "10px",
                   fontWeight: "700",
-                  color: "#64748B",
+                  color: theme.colors.foregroundSubtle,
                   marginLeft: "auto",
                 }}
               >
@@ -386,10 +387,10 @@ export const Dashboard = () => {
           <Flex direction="column" css={{ padding: theme.spacing[3], gap: theme.spacing[6] }}>
             <PanelBanner
                css={{
-                 background: "linear-gradient(135deg, #F0ECFF 0%, #E8E0FF 100%)",
+                 background: theme.colors.backgroundTopbar,
                 borderRadius: "18px",
                 padding: theme.spacing[7],
-                border: "1px solid #C9BFFF",
+                border: `1px solid ${theme.colors.backgroundTopbar}`,
                 position: "relative",
                 overflow: "hidden",
                 "&::before": {
@@ -399,13 +400,13 @@ export const Dashboard = () => {
                   left: 0,
                   right: 0,
                   height: "1px",
-                  background: "linear-gradient(to right, transparent, #2b00cc, transparent)",
-                  opacity: 0.15,
+                  background: "linear-gradient(to right, transparent, rgba(255,255,255,0.1), transparent)",
+                  opacity: 0.1,
                 }
                }}
             >
-              <Text variant="titles" css={{ color: "#0F172A", marginBottom: theme.spacing[1], fontSize: "13px", fontWeight: "700" }}>Inception is live</Text>
-              <Text css={{ color: "#64748B", opacity: 0.9, fontSize: "11.5px", lineHeight: "1.6", marginBottom: theme.spacing[4] }}>
+              <Text variant="titles" css={{ color: theme.colors.backgroundPanel, marginBottom: theme.spacing[1], fontSize: "13px", fontWeight: "700" }}>Inception is live</Text>
+              <Text css={{ color: theme.colors.backgroundControls, opacity: 0.9, fontSize: "11.5px", lineHeight: "1.6", marginBottom: theme.spacing[4] }}>
                 AI-powered design tool to instantly generate HTML/CSS.
               </Text>
               <Link
@@ -421,16 +422,16 @@ export const Dashboard = () => {
                   fontSize: "12px",
                   height: "34px",
                   borderRadius: "10px",
-                  background: "#2b00cc",
-                  color: "#FFFFFF",
-                  boxShadow: "0 4px 10px rgba(43, 0, 204, 0.25)",
+                  background: theme.colors.backgroundPanel,
+                  color: theme.colors.backgroundTopbar,
+                  boxShadow: "0 4px 10px rgba(0, 0, 0, 0.25)",
                   transition: "all 0.2s ease",
                   border: "none",
                   "&:hover": {
-                    background: "#2200a3",
+                    background: theme.colors.backgroundControls,
                     transform: "translateY(-1px)",
-                    boxShadow: "0 6px 14px rgba(34, 0, 163, 0.35)",
-                    color: "#FFFFFF",
+                    boxShadow: "0 6px 14px rgba(0, 0, 0, 0.35)",
+                    color: theme.colors.backgroundTopbar,
                   }
                 }}
               >
@@ -440,7 +441,7 @@ export const Dashboard = () => {
 
             <Flex
               css={{
-                borderTop: "1px solid #E2E8F0",
+                borderTop: `1px solid ${theme.colors.borderMain}`,
                 paddingTop: theme.spacing[6],
                 marginTop: theme.spacing[2],
               }}

@@ -10,7 +10,7 @@ body {
     This is the top bar and loading screen color (--colors-backgroundTopbar).
     We are setting it to avoid a white screen flash when opening project from the dashboard.
    */
-  background-color: #FFFFFF;
+  background-color: #1f1f1f;
 }
 
 [data-radix-scroll-area-viewport] {

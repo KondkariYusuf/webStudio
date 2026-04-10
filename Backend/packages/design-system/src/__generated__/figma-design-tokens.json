@@ -387,7 +387,7 @@
     },
     "background": {
       "panel": {
-        "value": "#fff",
+        "value": "#ffffff",
         "type": "color",
         "description": "background color for all panels, titles, columns and rows."
       },
@@ -412,7 +412,7 @@
         "description": "background color for menu and select menu"
       },
       "controls": {
-        "value": "#f5f5f5",
+        "value": "#f4f4f4",
         "type": "color",
         "description": "background color for text input, toggle group, input field, color input, select button, panel button, text-area, search field, checkbox, spacing, flex control"
       },
@@ -596,11 +596,11 @@
       },
       "spacing": {
         "top-bottom": {
-          "value": "#f8f8f8",
+          "value": "#f4f4f4",
           "type": "color"
         },
         "left-right": {
-          "value": "#f1f3f5",
+          "value": "#f4f4f4",
           "type": "color",
           "description": "Left and right padding and margin background colors for the Position section UI."
         },
@@ -665,12 +665,12 @@
         }
       },
       "canvas": {
-        "value": "#eee",
+        "value": "#f6f7ed",
         "type": "color",
         "description": "The color of the Builder UI canvas area background."
       },
       "topbar": {
-        "value": "#2d2d2d",
+        "value": "#1f1f1f",
         "type": "color",
         "description": "For the Builder UI top bar background color."
       },
@@ -707,7 +707,7 @@
         "description": "For tabs and button backgrounds that are in the top toolbar"
       },
       "workspace": {
-        "value": "#a9a9a9",
+        "value": "#f6f7ed",
         "type": "color",
         "description": "The color of the Builder UI canvas area background."
       },
@@ -733,7 +733,7 @@
         }
       },
       "disabled-dark": {
-        "value": "#323232",
+        "value": "#f4f4f4",
         "type": "color",
         "description": "For disabled controls that are against a dark background."
       }
