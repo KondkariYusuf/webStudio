@@ -13,7 +13,6 @@ import {
   DialogContent,
   DialogTitle,
   DialogDescription,
-  DialogClose,
   DialogTrigger,
 } from "@webstudio-is/design-system";
 import { TrashIcon, PlusIcon } from "@webstudio-is/icons";
@@ -66,6 +65,30 @@ const roleOptions = [
   { value: "viewer", label: "Viewer" },
 ];
 
+const monoPalette = {
+  text: "#101010",
+  muted: "#606060",
+  border: "#1a1a1a",
+  borderSoft: "#d5d5d5",
+  surface: "#ffffff",
+  surfaceAlt: "#f5f5f5",
+  hover: "#efefef",
+  inverseBg: "#111111",
+  inverseText: "#ffffff",
+};
+
+const formControlCss = {
+  minHeight: 42,
+  borderRadius: 10,
+  border: `1px solid ${monoPalette.borderSoft}`,
+  backgroundColor: monoPalette.surface,
+  transition: "border-color 120ms ease, box-shadow 120ms ease",
+  "&:focus-within": {
+    borderColor: monoPalette.border,
+    boxShadow: `0 0 0 1px ${monoPalette.border} inset`,
+  },
+};
+
 const getResponseError = async (response: Response) => {
   const contentType = response.headers.get("content-type") ?? "";
 
@@ -117,19 +140,20 @@ const postProjectAccess = async (payload: Record<string, string>) => {
 };
 
 const RoleBadge = ({ role }: { role: string }) => {
-  const bgColor =
-    role === "admin"
-      ? "#2b00cc"
-      : role === "editor"
-        ? "#4411dd"
-        : "#8B8FA3";
+  const isAdmin = role === "admin";
+  const isEditor = role === "editor";
   return (
     <Flex
       align="center"
       justify="center"
       css={{
-        backgroundColor: bgColor,
-        color: "#fff",
+        backgroundColor: isAdmin
+          ? monoPalette.inverseBg
+          : isEditor
+            ? monoPalette.surface
+            : monoPalette.surfaceAlt,
+        color: isAdmin ? monoPalette.inverseText : monoPalette.text,
+        border: `1px solid ${isAdmin ? monoPalette.inverseBg : monoPalette.border}`,
         borderRadius: "4px",
         padding: "2px 8px",
         fontSize: "11px",
@@ -163,10 +187,11 @@ const UserRow = ({
       align="center"
       css={{
         padding: `${theme.spacing[4]} ${theme.spacing[5]}`,
-        borderBottom: `1px solid ${theme.colors.borderMain}`,
+        borderBottom: `1px solid ${monoPalette.borderSoft}`,
         gap: theme.spacing[4],
+        backgroundColor: monoPalette.surface,
         "&:hover": {
-          backgroundColor: theme.colors.backgroundHover,
+          backgroundColor: monoPalette.hover,
         },
       }}
     >
@@ -177,8 +202,8 @@ const UserRow = ({
           width: 32,
           height: 32,
           borderRadius: "50%",
-          backgroundColor: "#2b00cc",
-          color: "#fff",
+          backgroundColor: monoPalette.inverseBg,
+          color: monoPalette.inverseText,
           fontSize: "13px",
           fontWeight: 600,
           flexShrink: 0,
@@ -188,12 +213,12 @@ const UserRow = ({
       </Flex>
 
       <Flex direction="column" css={{ flex: 1, minWidth: 0 }}>
-        <Text truncate css={{ fontWeight: 500 }}>
+        <Text truncate css={{ fontWeight: 500, color: monoPalette.text }}>
           {user.email ?? "No email"}
         </Text>
         <Text
           variant="small"
-          css={{ color: theme.colors.foregroundSubtle }}
+          css={{ color: monoPalette.muted }}
         >
           Joined {new Date(user.createdAt).toLocaleDateString()}
         </Text>
@@ -203,7 +228,7 @@ const UserRow = ({
         {isSelf ? (
           <Flex align="center" gap="2">
             <RoleBadge role={user.role} />
-            <Text variant="small" css={{ color: theme.colors.foregroundSubtle }}>
+            <Text variant="small" css={{ color: monoPalette.muted }}>
               (You)
             </Text>
           </Flex>
@@ -224,9 +249,10 @@ const UserRow = ({
               <IconButton
                 onClick={() => onDelete(user.id)}
                 css={{
-                  color: theme.colors.foregroundDestructive,
+                  color: monoPalette.text,
+                  border: `1px solid ${monoPalette.borderSoft}`,
                   "&:hover": {
-                    backgroundColor: theme.colors.backgroundDestructiveNotification,
+                    backgroundColor: monoPalette.hover,
                   },
                 }}
               >
@@ -237,7 +263,7 @@ const UserRow = ({
         ) : (
           <Flex align="center" gap="2">
             <RoleBadge role={user.role} />
-            <Text variant="small" css={{ color: theme.colors.foregroundSubtle }}>
+            <Text variant="small" css={{ color: monoPalette.muted }}>
               Super admin only
             </Text>
           </Flex>
@@ -336,18 +362,33 @@ const CreateUserForm = ({
   };
 
   return (
-    <Flex direction="column" gap="3" css={{ padding: theme.spacing[5] }}>
-      <Text variant="titles">Create New User</Text>
+    <Flex
+      direction="column"
+      gap="4"
+      css={{
+        padding: `${theme.spacing[3]} ${theme.spacing[7]} ${theme.spacing[7]}`,
+        backgroundColor: monoPalette.surface,
+        color: monoPalette.text,
+      }}
+    >
+      <Text
+        variant="titles"
+        css={{ color: monoPalette.text, fontSize: "24px", lineHeight: 1.1 }}
+      >
+        Create New User
+      </Text>
       <InputField
         placeholder="Full Name"
         value={fullName}
         onChange={(e) => setFullName(e.target.value)}
+        css={formControlCss}
       />
       <InputField
         placeholder="Company Name"
         value={companyName}
         onChange={(e) => setCompanyName(e.target.value)}
         disabled={enforcedCompanyName !== undefined && enforcedCompanyName !== null}
+        css={formControlCss}
       />
       <InputField
         placeholder="Phone Number"
@@ -355,18 +396,21 @@ const CreateUserForm = ({
         value={phone}
         onChange={(e) => setPhone(e.target.value)}
         pattern={phoneNumberPattern}
+        css={formControlCss}
       />
       <InputField
         placeholder="Email"
         type="email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
+        css={formControlCss}
       />
       <InputField
         placeholder="Password (min 8 chars)"
         type="password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
+        css={formControlCss}
       />
       <Select
         options={roleOptions
@@ -377,12 +421,28 @@ const CreateUserForm = ({
         }
         value={role}
         onChange={setRole}
+        css={{
+          ...formControlCss,
+          width: "100%",
+        }}
       />
       {error && <Text color="destructive">{error}</Text>}
       <Button
         onClick={handleSubmit}
         type="button"
         color="primary"
+        css={{
+          marginTop: theme.spacing[1],
+          minHeight: 44,
+          borderRadius: 10,
+          width: "100%",
+          backgroundColor: monoPalette.inverseBg,
+          color: monoPalette.inverseText,
+          border: `1px solid ${monoPalette.inverseBg}`,
+          "&:hover": {
+            opacity: 0.9,
+          },
+        }}
         state={isSubmitting ? "pending" : undefined}
       >
         Create User
@@ -568,34 +628,73 @@ export const AdminPanel = ({ currentUserId }: { currentUserId: string }) => {
   const isSuperAdmin = currentAdmin?.isSuperAdmin ?? false;
 
   return (
-    <Flex direction="column" gap="6">
+    <Flex direction="column" gap="6" css={{ color: monoPalette.text }}>
       {/* Header */}
       <Flex
         align="center"
         justify="between"
         css={{
           padding: `${theme.spacing[5]} ${theme.spacing[7]}`,
-          borderBottom: `1px solid ${theme.colors.borderMain}`,
+          borderBottom: `1px solid ${monoPalette.border}`,
+          backgroundColor: monoPalette.surface,
+          borderRadius: 12,
         }}
       >
         <Flex direction="column" gap="1">
-          <Text variant="titles" css={{ fontSize: "16px" }}>
+          <Text variant="titles" css={{ fontSize: "16px", color: monoPalette.text }}>
             User Management
           </Text>
-          <Text variant="small" css={{ color: theme.colors.foregroundSubtle }}>
+          <Text variant="small" css={{ color: monoPalette.muted }}>
             {users.length} user{users.length !== 1 ? "s" : ""} registered
           </Text>
         </Flex>
 
         <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
           <DialogTrigger asChild>
-            <Button color="primary" prefix={<PlusIcon />}>
+            <Button
+              color="primary"
+              prefix={<PlusIcon />}
+              css={{
+                backgroundColor: monoPalette.inverseBg,
+                color: monoPalette.inverseText,
+                border: `1px solid ${monoPalette.inverseBg}`,
+                "&:hover": {
+                  opacity: 0.9,
+                },
+              }}
+            >
               Add User
             </Button>
           </DialogTrigger>
-          <DialogContent css={{ maxWidth: 400 }} aria-describedby="admin-create-user-description">
-            <DialogTitle>Add User</DialogTitle>
-            <DialogDescription id="admin-create-user-description">
+          <DialogContent
+            css={{
+              width: "min(94vw, 620px)",
+              maxWidth: 620,
+              border: `1px solid ${monoPalette.border}`,
+              backgroundColor: monoPalette.surface,
+              borderRadius: 14,
+              overflow: "hidden",
+            }}
+            aria-describedby="admin-create-user-description"
+          >
+            <DialogTitle
+              css={{
+                color: monoPalette.text,
+                padding: `${theme.spacing[6]} ${theme.spacing[7]} ${theme.spacing[2]}`,
+                fontSize: "18px",
+              }}
+            >
+              Add User
+            </DialogTitle>
+            <DialogDescription
+              id="admin-create-user-description"
+              css={{
+                color: monoPalette.muted,
+                padding: `0 ${theme.spacing[7]} ${theme.spacing[1]}`,
+                marginBottom: theme.spacing[2],
+                lineHeight: 1.35,
+              }}
+            >
               Create a new dashboard user with an email, password, and role.
             </DialogDescription>
             <CreateUserForm
@@ -609,15 +708,22 @@ export const AdminPanel = ({ currentUserId }: { currentUserId: string }) => {
                 fetchUsers();
               }}
             />
-            <DialogClose />
           </DialogContent>
         </Dialog>
       </Flex>
 
-      <Flex direction="column" css={{ border: `1px solid ${theme.colors.borderMain}`, borderRadius: 12, overflow: "hidden" }}>
+      <Flex
+        direction="column"
+        css={{
+          border: `1px solid ${monoPalette.border}`,
+          borderRadius: 12,
+          overflow: "hidden",
+          backgroundColor: monoPalette.surface,
+        }}
+      >
         {isLoading ? (
           <Flex align="center" justify="center" css={{ padding: theme.spacing[10] }}>
-            <Text css={{ color: theme.colors.foregroundSubtle }}>
+            <Text css={{ color: monoPalette.muted }}>
               Loading users...
             </Text>
           </Flex>
@@ -644,9 +750,10 @@ export const AdminPanel = ({ currentUserId }: { currentUserId: string }) => {
       <Flex
         direction="column"
         css={{
-          border: `1px solid ${theme.colors.borderMain}`,
+          border: `1px solid ${monoPalette.border}`,
           borderRadius: 12,
           overflow: "hidden",
+          backgroundColor: monoPalette.surface,
         }}
       >
         <Flex
@@ -654,14 +761,14 @@ export const AdminPanel = ({ currentUserId }: { currentUserId: string }) => {
           justify="between"
           css={{
             padding: `${theme.spacing[5]} ${theme.spacing[7]}`,
-            borderBottom: `1px solid ${theme.colors.borderMain}`,
+            borderBottom: `1px solid ${monoPalette.border}`,
           }}
         >
           <Flex direction="column" gap="1">
-            <Text variant="titles" css={{ fontSize: "16px" }}>
+            <Text variant="titles" css={{ fontSize: "16px", color: monoPalette.text }}>
               Project Access
             </Text>
-            <Text variant="small" css={{ color: theme.colors.foregroundSubtle }}>
+            <Text variant="small" css={{ color: monoPalette.muted }}>
               Grant `view`, `edit`, or `admin` access per project.
             </Text>
           </Flex>
@@ -676,7 +783,7 @@ export const AdminPanel = ({ currentUserId }: { currentUserId: string }) => {
               css={{ width: 280 }}
             />
           ) : (
-            <Text variant="small" css={{ color: theme.colors.foregroundSubtle }}>
+            <Text variant="small" css={{ color: monoPalette.muted }}>
               No projects found
             </Text>
           )}
@@ -688,12 +795,12 @@ export const AdminPanel = ({ currentUserId }: { currentUserId: string }) => {
             justify="between"
             css={{
               padding: `${theme.spacing[4]} ${theme.spacing[7]}`,
-              borderBottom: `1px solid ${theme.colors.borderMain}`,
-              backgroundColor: theme.colors.backgroundPanel,
+              borderBottom: `1px solid ${monoPalette.borderSoft}`,
+              backgroundColor: monoPalette.surfaceAlt,
             }}
           >
-            <Text css={{ fontWeight: 600 }}>{selectedProject.title}</Text>
-            <Text variant="small" css={{ color: theme.colors.foregroundSubtle }}>
+            <Text css={{ fontWeight: 600, color: monoPalette.text }}>{selectedProject.title}</Text>
+            <Text variant="small" css={{ color: monoPalette.muted }}>
               {projectAccess.length} shared user{projectAccess.length !== 1 ? "s" : ""}
             </Text>
           </Flex>
@@ -701,7 +808,7 @@ export const AdminPanel = ({ currentUserId }: { currentUserId: string }) => {
 
         {projects.length === 0 ? (
           <Flex align="center" justify="center" css={{ padding: theme.spacing[10] }}>
-            <Text css={{ color: theme.colors.foregroundSubtle }}>
+            <Text css={{ color: monoPalette.muted }}>
               Create a project first, then assign access here.
             </Text>
           </Flex>
@@ -711,7 +818,7 @@ export const AdminPanel = ({ currentUserId }: { currentUserId: string }) => {
           </Flex>
         ) : isAccessLoading ? (
           <Flex align="center" justify="center" css={{ padding: theme.spacing[10] }}>
-            <Text css={{ color: theme.colors.foregroundSubtle }}>
+            <Text css={{ color: monoPalette.muted }}>
               Loading project access...
             </Text>
           </Flex>
@@ -728,10 +835,10 @@ export const AdminPanel = ({ currentUserId }: { currentUserId: string }) => {
                   align="center"
                   css={{
                     padding: `${theme.spacing[4]} ${theme.spacing[5]}`,
-                    borderBottom: `1px solid ${theme.colors.borderMain}`,
+                    borderBottom: `1px solid ${monoPalette.borderSoft}`,
                     gap: theme.spacing[4],
                     "&:hover": {
-                      backgroundColor: theme.colors.backgroundHover,
+                      backgroundColor: monoPalette.hover,
                     },
                   }}
                 >
@@ -742,8 +849,8 @@ export const AdminPanel = ({ currentUserId }: { currentUserId: string }) => {
                       width: 32,
                       height: 32,
                       borderRadius: "50%",
-                      backgroundColor: "#2b00cc",
-                      color: "#fff",
+                      backgroundColor: monoPalette.inverseBg,
+                      color: monoPalette.inverseText,
                       fontSize: "13px",
                       fontWeight: 600,
                       flexShrink: 0,
@@ -753,10 +860,10 @@ export const AdminPanel = ({ currentUserId }: { currentUserId: string }) => {
                   </Flex>
 
                   <Flex direction="column" css={{ flex: 1, minWidth: 0 }}>
-                    <Text truncate css={{ fontWeight: 500 }}>
+                    <Text truncate css={{ fontWeight: 500, color: monoPalette.text }}>
                       {user.email ?? "No email"}
                     </Text>
-                    <Text variant="small" css={{ color: theme.colors.foregroundSubtle }}>
+                    <Text variant="small" css={{ color: monoPalette.muted }}>
                       {isOwner
                         ? "Project owner"
                         : accessLevel === "none"
@@ -766,11 +873,11 @@ export const AdminPanel = ({ currentUserId }: { currentUserId: string }) => {
                   </Flex>
 
                   {isOwner ? (
-                    <Text variant="small" css={{ color: theme.colors.foregroundSubtle }}>
+                    <Text variant="small" css={{ color: monoPalette.muted }}>
                       Owner
                     </Text>
                   ) : canManageProjectAccess === false ? (
-                    <Text variant="small" css={{ color: theme.colors.foregroundSubtle }}>
+                    <Text variant="small" css={{ color: monoPalette.muted }}>
                       Super admin only
                     </Text>
                   ) : (
