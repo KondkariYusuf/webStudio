@@ -1,4 +1,4 @@
-import { SearchField } from "@webstudio-is/design-system";
+import { SearchField, theme } from "@webstudio-is/design-system";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { dashboardPath } from "~/shared/router-utils";
 
@@ -18,28 +18,30 @@ export const Search = () => {
   return (
     <SearchField
       css={{
-        background: "#F1F5F9",
-        border: "1px solid #E2E8F0",
-        borderRadius: "8px",
-        $$foregroundSubtle: "#64748B",
+        background: "transparent",
+        border: "none",
+        boxShadow: "none",
+        "$$foregroundSubtle": theme.colors.foregroundSubtle,
         "& *": {
-          "--colors-foregroundSubtle": "#64748B"
+          "--colors-foregroundSubtle": theme.colors.foregroundSubtle,
         },
         "&:hover": {
-          borderColor: "#CBD5E1"
+          borderColor: "transparent",
+          background: "transparent",
         },
         "&:focus-within": {
-          borderColor: "#2b00cc"
+          borderColor: "transparent",
+          boxShadow: "none",
         },
         "& [data-input-field-input]": {
-          color: "#0F172A",
+          color: theme.colors.foregroundMain,
           "&::placeholder": {
-            color: "#94A3B8",
+            color: theme.colors.foregroundSubtle,
             opacity: 1
           }
         },
         "& svg": {
-          color: "#64748B !important"
+          color: `${theme.colors.foregroundSubtle} !important`
         }
       }}
       value={searchParams.get("q") ?? undefined}

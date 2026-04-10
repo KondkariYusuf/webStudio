@@ -63,10 +63,13 @@ model User {
   provider         String?
   image            String?
   username         String?
+  role             String             @default("viewer")
   createdAt        DateTime           @default(now()) @db.Timestamptz(3)
   team             Team?              @relation(fields: [teamId], references: [id])
   teamId           String?
   projects         Project[]
+  sharedProjects   UserProjectAccess[] @relation("UserProjectAccess_userId")
+  grantedAccess    UserProjectAccess[] @relation("UserProjectAccess_grantedBy")
   projectsTags     Json               @default("[]")
   clientReferences ClientReferences[]
   checkout         TransactionLog[]
@@ -156,6 +159,7 @@ model Project {
   files                     File[]
   projectDomain             ProjectDomain[]
   authorizationToken        AuthorizationToken[]
+  sharedAccess              UserProjectAccess[]
   previewImageAsset         Asset?                       @relation(fields: [previewImageAssetId, id], references: [id, projectId])
   previewImageAssetId       String?
   marketplaceApprovalStatus MarketplaceApprovalStatus    @default(UNLISTED)
@@ -308,4 +312,18 @@ view ApprovedMarketplaceProduct {
   projectId          String  @id
   marketplaceProduct String
   authorizationToken String?
+}
+
+model UserProjectAccess {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation("UserProjectAccess_userId", fields: [userId], references: [id], onDelete: Cascade)
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  accessLevel String   @default("view")
+  grantedBy   String?
+  grantor     User?     @relation("UserProjectAccess_grantedBy", fields: [grantedBy], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+
+  @@unique([userId, projectId])
 }

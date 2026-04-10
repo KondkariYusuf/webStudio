@@ -1,7 +1,7 @@
 import { PrismaClient } from './Backend/packages/prisma-client/src/__generated__/index.js';
 
 // Use the postgres superuser
-process.env.DATABASE_URL = 'postgresql://postgres:postgres@localhost:5432/webstudio';
+process.env.DATABASE_URL = 'postgresql://postgres:yusuf@localhost:5432/webstudio';
 process.env.DIRECT_URL = process.env.DATABASE_URL;
 
 const prisma = new PrismaClient();
