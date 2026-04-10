@@ -1,12 +1,15 @@
 import fs from "node:fs";
 import path from "node:path";
-import { FileLocker, MigrationMeta } from "umzug";
 import { inspect } from "node:util";
-import * as prismaMigrations from "./prisma-migrations";
-import { umzug } from "./umzug";
-import * as logger from "./logger";
-import * as args from "./args";
-import { UserError } from "./errors";
+import umzugPackage from "umzug";
+import * as prismaMigrations from "./prisma-migrations.ts";
+import { umzug } from "./umzug.ts";
+import * as logger from "./logger.ts";
+import * as args from "./args.ts";
+import { UserError } from "./errors.ts";
+
+const { FileLocker } = umzugPackage;
+type MigrationMeta = import("umzug").MigrationMeta;
 
 const templateFilePath = path.join(
   prismaMigrations.migrationsDir,

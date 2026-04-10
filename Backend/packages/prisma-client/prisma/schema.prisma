@@ -59,21 +59,41 @@ model Asset {
 model User {
   id               String             @id @default(uuid())
   email            String?            @unique
+  phone            String?
   passwordHash     String?
   provider         String?
   image            String?
   username         String?
+  fullName         String?
+  companyName      String?
+  approved         Boolean            @default(false)
   role             String             @default("viewer")
   createdAt        DateTime           @default(now()) @db.Timestamptz(3)
   team             Team?              @relation(fields: [teamId], references: [id])
   teamId           String?
   projects         Project[]
-  sharedProjects   UserProjectAccess[] @relation("UserProjectAccess_userId")
-  grantedAccess    UserProjectAccess[] @relation("UserProjectAccess_grantedBy")
   projectsTags     Json               @default("[]")
   clientReferences ClientReferences[]
   checkout         TransactionLog[]
   products         UserProduct[]
+  grantedProjectAccess UserProjectAccess[] @relation("GrantedProjectAccess")
+  projectAccess       UserProjectAccess[] @relation("UserProjectAccess")
+}
+
+model UserProjectAccess {
+  id          String   @id @default(uuid())
+  userId      String
+  projectId   String
+  accessLevel String   @default("view")
+  grantedBy   String
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+
+  user       User    @relation("UserProjectAccess", fields: [userId], references: [id])
+  project    Project @relation(fields: [projectId], references: [id])
+  grantedByUser User @relation("GrantedProjectAccess", fields: [grantedBy], references: [id])
+
+  @@unique([userId, projectId])
+  @@index([projectId])
 }
 
 // User client references in external services like stripe etc
@@ -159,7 +179,7 @@ model Project {
   files                     File[]
   projectDomain             ProjectDomain[]
   authorizationToken        AuthorizationToken[]
-  sharedAccess              UserProjectAccess[]
+  userProjectAccess         UserProjectAccess[]
   previewImageAsset         Asset?                       @relation(fields: [previewImageAssetId, id], references: [id, projectId])
   previewImageAssetId       String?
   marketplaceApprovalStatus MarketplaceApprovalStatus    @default(UNLISTED)
@@ -312,18 +332,4 @@ view ApprovedMarketplaceProduct {
   projectId          String  @id
   marketplaceProduct String
   authorizationToken String?
-}
-
-model UserProjectAccess {
-  id          String   @id @default(uuid())
-  userId      String
-  user        User     @relation("UserProjectAccess_userId", fields: [userId], references: [id], onDelete: Cascade)
-  projectId   String
-  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  accessLevel String   @default("view")
-  grantedBy   String?
-  grantor     User?     @relation("UserProjectAccess_grantedBy", fields: [grantedBy], references: [id], onDelete: SetNull)
-  createdAt   DateTime @default(now()) @db.Timestamptz(3)
-
-  @@unique([userId, projectId])
 }

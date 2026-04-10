@@ -162,12 +162,18 @@ authenticator.use(
   new FormStrategy(async ({ form, request }) => {
     const email = form.get("email")?.toString() ?? "";
     const password = form.get("password")?.toString() ?? "";
+    const fullName = form.get("fullName")?.toString() ?? "";
+    const companyName = form.get("companyName")?.toString() ?? "";
+    const phone = form.get("phone")?.toString() ?? "";
 
     try {
       const context = await createContext(request);
       const user = await db.user.registerWithEmailPassword(context, {
         email,
         password,
+        fullName,
+        companyName,
+        phone,
       });
 
       return {

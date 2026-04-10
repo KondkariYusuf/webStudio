@@ -1,9 +1,11 @@
-import { Umzug } from "umzug";
 import fs from "node:fs";
 import { pathToFileURL } from "node:url";
-import * as prismaMigrations from "./prisma-migrations";
-import * as logger from "./logger";
-import { UserError } from "./errors";
+import umzugPackage from "umzug";
+import * as prismaMigrations from "./prisma-migrations.ts";
+import * as logger from "./logger.ts";
+import { UserError } from "./errors.ts";
+
+const { Umzug } = umzugPackage;
 
 export const umzug = new Umzug({
   migrations: {

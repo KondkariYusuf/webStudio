@@ -7,11 +7,34 @@ import type { GitHubProfile } from "remix-auth-github";
 import type { GoogleProfile } from "remix-auth-google";
 import { z } from "zod";
 import { hashPassword, verifyPassword } from "~/services/password.server";
+import {
+  phoneNumberErrorMessage,
+  phoneNumberRegex,
+} from "~/shared/validation/phone";
 
 const emailPasswordSchema = z.object({
   email: z.string().email().max(320),
   password: z.string().min(8).max(128),
 });
+
+const userProfileSchema = z.object({
+  fullName: z.string().trim().min(1).max(100),
+  companyName: z.string().trim().min(1).max(150),
+  phone: z
+    .string()
+    .trim()
+    .regex(phoneNumberRegex, phoneNumberErrorMessage),
+});
+
+const tenantPhoneSchema = z
+  .string()
+  .trim()
+  .regex(phoneNumberRegex, phoneNumberErrorMessage);
+
+const getTenantPhoneOrNull = (phone: string) => {
+  const parsed = tenantPhoneSchema.safeParse(phone);
+  return parsed.success ? parsed.data : null;
+};
 
 export type User = Omit<
   Database["public"]["Tables"]["User"]["Row"],
@@ -78,6 +101,8 @@ const genericCreateAccount = async (
     .insert({
       id,
       ...userData,
+      approved: true,
+      role: "admin",
     });
 
   if (newUser.error) {
@@ -136,18 +161,129 @@ export const createOrLoginWithDev = async (
 };
 
 const normalizeEmail = (email: string) => email.trim().toLowerCase();
+const normalizeCompanyName = (companyName: string | null | undefined) =>
+  companyName?.trim().toLowerCase() ?? "";
+const normalizePhoneDigits = (phone: string | null | undefined) =>
+  (phone ?? "").replace(/\D/g, "");
+
+const slugifyTenantSegment = (value: string) =>
+  value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .replace(/-+/g, "-");
+
+export const generateTenantId = ({
+  companyName,
+  phone,
+}: {
+  companyName: string;
+  phone: string;
+}) => {
+  const companySegment =
+    slugifyTenantSegment(companyName).slice(0, 40) || "company";
+  const phoneSegment = normalizePhoneDigits(phone) || "0000000000";
+
+  return `tenant-${companySegment}-${phoneSegment}`;
+};
+
+const ensureTenantTeam = async (context: AppContext, tenantId: string) => {
+  const existingTeam = await context.postgrest.client
+    .from("Team")
+    .select("id")
+    .eq("id", tenantId)
+    .maybeSingle();
+
+  if (existingTeam.error) {
+    console.error(existingTeam.error);
+    throw new Error("Failed to validate tenant");
+  }
+
+  if (existingTeam.data?.id) {
+    return;
+  }
+
+  const createdTeam = await context.postgrest.client.from("Team").insert({
+    id: tenantId,
+  });
+
+  if (createdTeam.error) {
+    console.error(createdTeam.error);
+    throw new Error("Failed to create tenant");
+  }
+};
+
+const findExistingSubAdminByCompany = async (
+  context: AppContext,
+  companyName: string
+) => {
+  const normalizedCompany = normalizeCompanyName(companyName);
+
+  const result = await context.postgrest.client
+    .from("User")
+    .select("id,email,companyName,role")
+    .eq("role", "admin");
+
+  if (result.error) {
+    console.error(result.error);
+    throw new Error("Failed to validate company admin");
+  }
+
+  return (
+    result.data.find(
+      (user) =>
+        normalizeCompanyName(user.companyName) === normalizedCompany &&
+        normalizeEmail(user.email ?? "") !== SUPER_ADMIN_EMAIL
+    ) ?? null
+  );
+};
+
+const ensureCompanyHasNoSubAdmin = async (
+  context: AppContext,
+  companyName: string
+) => {
+  const existingSubAdmin = await findExistingSubAdminByCompany(
+    context,
+    companyName
+  );
+
+  if (existingSubAdmin) {
+    throw new Error("Sub admin for this company already exists");
+  }
+};
 
 export const registerWithEmailPassword = async (
   context: AppContext,
-  credentials: { email: string; password: string }
+  credentials: {
+    email: string;
+    password: string;
+    fullName: string;
+    companyName: string;
+    phone: string;
+  }
 ): Promise<AuthUser> => {
-  const parsed = emailPasswordSchema.safeParse(credentials);
-  if (parsed.success === false) {
-    throw new Error("Invalid email or password");
+  const authParsed = emailPasswordSchema.safeParse(credentials);
+  const profileParsed = userProfileSchema.safeParse(credentials);
+
+  if (authParsed.success === false) {
+    throw new Error("Invalid registration details");
   }
 
-  const email = normalizeEmail(parsed.data.email);
-  const passwordHash = hashPassword(parsed.data.password);
+  if (profileParsed.success === false) {
+    const hasPhoneIssue = profileParsed.error.issues.some((issue) =>
+      issue.path.includes("phone")
+    );
+
+    if (hasPhoneIssue) {
+      throw new Error(phoneNumberErrorMessage);
+    }
+
+    throw new Error("Invalid registration details");
+  }
+
+  const email = normalizeEmail(authParsed.data.email);
+  const passwordHash = hashPassword(authParsed.data.password);
 
   const existingUser = await context.postgrest.client
     .from("User")
@@ -164,15 +300,34 @@ export const registerWithEmailPassword = async (
     throw new Error("Email is already registered");
   }
 
+  await ensureCompanyHasNoSubAdmin(context, profileParsed.data.companyName);
+  const tenantPhone = getTenantPhoneOrNull(profileParsed.data.phone);
+
+  if (tenantPhone == null) {
+    throw new Error(phoneNumberErrorMessage);
+  }
+
+  const tenantId = generateTenantId({
+    companyName: profileParsed.data.companyName,
+    phone: tenantPhone,
+  });
+  await ensureTenantTeam(context, tenantId);
+
   const id = crypto.randomUUID();
 
   const newUser = await context.postgrest.client.from("User").insert({
     id,
     email,
-    username: email,
+    username: profileParsed.data.fullName,
+    fullName: profileParsed.data.fullName,
+    companyName: profileParsed.data.companyName,
+    phone: profileParsed.data.phone,
     image: "",
     provider: "password",
     passwordHash,
+    approved: true,
+    role: "admin",
+    teamId: tenantId,
   });
 
   if (newUser.error) {
@@ -257,6 +412,47 @@ export const updateUserProjectsTags = async (
 
 export type UserRole = "admin" | "editor" | "viewer";
 
+export const SUPER_ADMIN_EMAIL = "admin@gmail.com";
+
+export const isSuperAdminUser = (user: {
+  email?: string | null;
+  role?: string | null;
+}) => normalizeEmail(user.email ?? "") === SUPER_ADMIN_EMAIL;
+
+export const isSubAdminUser = (user: {
+  email?: string | null;
+  role?: string | null;
+}) => user.role === "admin" && isSuperAdminUser(user) === false;
+
+export const isSameCompanyUser = (
+  left: { companyName?: string | null },
+  right: { companyName?: string | null }
+) =>
+  normalizeCompanyName(left.companyName) !== "" &&
+  normalizeCompanyName(left.companyName) === normalizeCompanyName(right.companyName);
+
+export const canSubAdminManageUser = ({
+  actor,
+  target,
+}: {
+  actor: Pick<User, "id" | "role" | "email" | "companyName">;
+  target: Pick<User, "id" | "role" | "email" | "companyName">;
+}) => {
+  if (actor.id === target.id) {
+    return false;
+  }
+
+  if (isSuperAdminUser(actor)) {
+    return true;
+  }
+
+  if (isSubAdminUser(actor) === false) {
+    return false;
+  }
+
+  return target.role !== "admin" && isSameCompanyUser(actor, target);
+};
+
 export class AdminUserManagementError extends Error {
   status: number;
 
@@ -270,7 +466,7 @@ export class AdminUserManagementError extends Error {
 export const getAllUsers = async (context: AppContext) => {
   const result = await context.postgrest.client
     .from("User")
-    .select("id,email,username,image,role,createdAt")
+    .select("id,email,username,fullName,companyName,phone,image,role,approved,createdAt")
     .order("createdAt", { ascending: true });
 
   if (result.error) {
@@ -279,6 +475,21 @@ export const getAllUsers = async (context: AppContext) => {
   }
 
   return result.data;
+};
+
+export const getUsersVisibleToAdmin = async (
+  context: AppContext,
+  adminUser: Pick<User, "id" | "role" | "email" | "companyName">
+) => {
+  const users = await getAllUsers(context);
+
+  if (isSuperAdminUser(adminUser)) {
+    return users;
+  }
+
+  return users.filter(
+    (user) => user.role !== "admin" && isSameCompanyUser(adminUser, user)
+  );
 };
 
 export const updateUserRole = async (
@@ -317,15 +528,46 @@ export const deleteUserById = async (
 
 export const createUserByAdmin = async (
   context: AppContext,
-  { email, role, password }: { email: string; role: UserRole; password: string }
+  {
+    email,
+    role,
+    password,
+    fullName,
+    companyName,
+    phone,
+  }: {
+    email: string;
+    role: UserRole;
+    password: string;
+    fullName: string;
+    companyName: string;
+    phone: string;
+  }
 ) => {
   const parsed = emailPasswordSchema.safeParse({
     email,
     password,
   });
+  const profileParsed = userProfileSchema.safeParse({
+    fullName,
+    companyName,
+    phone,
+  });
 
   if (parsed.success === false) {
-    throw new AdminUserManagementError("Invalid email or password", 400);
+    throw new AdminUserManagementError("Invalid user details", 400);
+  }
+
+  if (profileParsed.success === false) {
+    const hasPhoneIssue = profileParsed.error.issues.some((issue) =>
+      issue.path.includes("phone")
+    );
+
+    if (hasPhoneIssue) {
+      throw new AdminUserManagementError(phoneNumberErrorMessage, 400);
+    }
+
+    throw new AdminUserManagementError("Invalid user details", 400);
   }
 
   const normalizedEmail = normalizeEmail(parsed.data.email);
@@ -347,14 +589,46 @@ export const createUserByAdmin = async (
     throw new AdminUserManagementError("User with this email already exists", 409);
   }
 
+  if (role === "admin") {
+    const existingSubAdmin = await findExistingSubAdminByCompany(
+      context,
+      profileParsed.data.companyName
+    );
+
+    if (existingSubAdmin) {
+      throw new AdminUserManagementError(
+        "Sub admin for this company already exists",
+        409
+      );
+    }
+  }
+
+  const tenantPhone = getTenantPhoneOrNull(profileParsed.data.phone);
+
+  if (tenantPhone == null) {
+    throw new AdminUserManagementError(phoneNumberErrorMessage, 400);
+  }
+
+  const resolvedTenantId = generateTenantId({
+    companyName: profileParsed.data.companyName,
+    phone: tenantPhone,
+  });
+
+  await ensureTenantTeam(context, resolvedTenantId);
+
   const result = await context.postgrest.client.from("User").insert({
     id,
     email: normalizedEmail,
-    username: normalizedEmail,
+    username: profileParsed.data.fullName,
+    fullName: profileParsed.data.fullName,
+    companyName: profileParsed.data.companyName,
+    phone: profileParsed.data.phone,
     image: "",
     provider: "password",
     passwordHash,
+    approved: true,
     role,
+    teamId: resolvedTenantId,
   });
 
   if (result.error) {

@@ -1,10 +1,10 @@
 #!/usr/bin/env tsx
 
 import { chdir, loadEnvFile } from "node:process";
-import * as commands from "./commands";
-import * as logger from "./logger";
-import * as args from "./args";
-import { UserError } from "./errors";
+import * as commands from "./commands.ts";
+import * as logger from "./logger.ts";
+import * as args from "./args.ts";
+import { UserError } from "./errors.ts";
 
 chdir(args.values.cwd);
 

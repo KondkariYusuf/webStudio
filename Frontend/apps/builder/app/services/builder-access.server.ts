@@ -19,7 +19,7 @@ export const isUserAuthorizedForProject = async (
 
   const isProjectOwner = await authorizeProject.checkProjectPermit(
     projectId,
-    "own",
+    "view",
     { type: "user", userId },
     postgrestContext.client
   );
@@ -27,18 +27,5 @@ export const isUserAuthorizedForProject = async (
   if (isProjectOwner) {
     return true;
   }
-
-  const access = await postgrestContext.client
-    .from("UserProjectAccess")
-    .select("id")
-    .eq("userId", userId)
-    .eq("projectId", projectId)
-    .in("accessLevel", ["view", "edit"])
-    .maybeSingle();
-
-  if (access.error) {
-    throw access.error;
-  }
-
-  return access.data !== null;
+  return false;
 };

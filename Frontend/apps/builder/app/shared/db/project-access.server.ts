@@ -1,6 +1,11 @@
 import type { AppContext } from "@webstudio-is/trpc-interface/index.server";
+import {
+  isSameCompanyUser,
+  isSuperAdminUser,
+  type User,
+} from "~/shared/db/user.server";
 
-export type AccessLevel = "view" | "edit";
+export type AccessLevel = "view" | "edit" | "admin";
 
 export const getAllProjectsForAdmin = async (context: AppContext) => {
   const result = await context.postgrest.client
@@ -15,6 +20,41 @@ export const getAllProjectsForAdmin = async (context: AppContext) => {
   }
 
   return result.data;
+};
+
+export const getProjectsVisibleToAdmin = async (
+  context: AppContext,
+  adminUser: Pick<User, "id" | "role" | "email" | "companyName">
+) => {
+  const projects = await getAllProjectsForAdmin(context);
+
+  if (isSuperAdminUser(adminUser)) {
+    return projects;
+  }
+
+  const ownersResult = await context.postgrest.client
+    .from("User")
+    .select("id,companyName")
+    .in(
+      "id",
+      projects.length === 0
+        ? ["00000000-0000-0000-0000-000000000000"]
+        : projects
+            .map((project) => project.userId)
+            .filter((userId): userId is string => userId !== null)
+    );
+
+  if (ownersResult.error) {
+    console.error(ownersResult.error);
+    throw new Error("Failed to fetch project owners");
+  }
+
+  const ownerById = new Map(ownersResult.data.map((owner) => [owner.id, owner]));
+
+  return projects.filter((project) => {
+    const owner = project.userId ? ownerById.get(project.userId) : undefined;
+    return owner ? isSameCompanyUser(adminUser, owner) : false;
+  });
 };
 
 export const getProjectAccessList = async (
@@ -32,6 +72,42 @@ export const getProjectAccessList = async (
   }
 
   return result.data;
+};
+
+export const getProjectAccessListVisibleToAdmin = async (
+  context: AppContext,
+  adminUser: Pick<User, "id" | "role" | "email" | "companyName">,
+  projectId: string
+) => {
+  const accessList = await getProjectAccessList(context, projectId);
+
+  if (isSuperAdminUser(adminUser)) {
+    return accessList;
+  }
+
+  const usersResult = await context.postgrest.client
+    .from("User")
+    .select("id,role,companyName")
+    .in(
+      "id",
+      accessList.length === 0
+        ? ["00000000-0000-0000-0000-000000000000"]
+        : accessList.map((entry) => entry.userId)
+    );
+
+  if (usersResult.error) {
+    console.error(usersResult.error);
+    throw new Error("Failed to fetch project access users");
+  }
+
+  const userById = new Map(usersResult.data.map((user) => [user.id, user]));
+
+  return accessList.filter((entry) => {
+    const targetUser = userById.get(entry.userId);
+    return targetUser
+      ? targetUser.role !== "admin" && isSameCompanyUser(adminUser, targetUser)
+      : false;
+  });
 };
 
 export const grantProjectAccess = async (

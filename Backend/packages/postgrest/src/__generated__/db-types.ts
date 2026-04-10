@@ -682,11 +682,15 @@ export type Database = {
       };
       User: {
         Row: {
+          approved: boolean;
+          companyName: string | null;
           createdAt: string;
           email: string | null;
+          fullName: string | null;
           id: string;
           image: string | null;
           passwordHash: string | null;
+          phone: string | null;
           projectsTags: Json;
           provider: string | null;
           role: string;
@@ -694,11 +698,15 @@ export type Database = {
           username: string | null;
         };
         Insert: {
+          approved?: boolean;
+          companyName?: string | null;
           createdAt?: string;
           email?: string | null;
+          fullName?: string | null;
           id: string;
           image?: string | null;
           passwordHash?: string | null;
+          phone?: string | null;
           projectsTags?: Json;
           provider?: string | null;
           role?: string;
@@ -706,11 +714,15 @@ export type Database = {
           username?: string | null;
         };
         Update: {
+          approved?: boolean;
+          companyName?: string | null;
           createdAt?: string;
           email?: string | null;
+          fullName?: string | null;
           id?: string;
           image?: string | null;
           passwordHash?: string | null;
+          phone?: string | null;
           projectsTags?: Json;
           provider?: string | null;
           role?: string;

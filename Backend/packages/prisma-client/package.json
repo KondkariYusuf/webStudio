@@ -7,7 +7,7 @@
   "type": "module",
   "scripts": {
     "generate": "prisma generate",
-    "migrations": "tsx ./migrations-cli/cli.ts"
+    "migrations": "node --experimental-strip-types ./migrations-cli/cli.ts"
   },
   "devDependencies": {
     "@prisma/client": "^5.12.1",

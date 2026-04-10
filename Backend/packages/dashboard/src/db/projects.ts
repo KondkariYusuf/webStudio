@@ -86,6 +86,14 @@ type DashboardProjectRow = {
   [key: string]: unknown;
 };
 
+const SUPER_ADMIN_EMAIL = "admin@gmail.com";
+
+const normalizeEmail = (email: string | null | undefined) =>
+  (email ?? "").trim().toLowerCase();
+
+const normalizeCompanyName = (companyName: string | null | undefined) =>
+  (companyName ?? "").trim().toLowerCase();
+
 const canRetryWithoutProjectListRelation = (error: { message?: string }) => {
   const message = error.message ?? "";
 
@@ -160,6 +168,60 @@ const queryProjectList = async (
   return dashboardProjects;
 };
 
+const getImplicitCompanyProjectIds = async (
+  userId: string,
+  context: AppContext
+) => {
+  const currentUserResult = await context.postgrest.client
+    .from("User")
+    .select("companyName")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (currentUserResult.error) {
+    throw currentUserResult.error;
+  }
+
+  const companyName = normalizeCompanyName(currentUserResult.data?.companyName);
+
+  if (companyName === "") {
+    return [];
+  }
+
+  const adminsResult = await context.postgrest.client
+    .from("User")
+    .select("id,email,role,companyName")
+    .eq("role", "admin");
+
+  if (adminsResult.error) {
+    throw adminsResult.error;
+  }
+
+  const subAdminIds = adminsResult.data
+    .filter(
+      (user) =>
+        normalizeEmail(user.email) !== SUPER_ADMIN_EMAIL &&
+        normalizeCompanyName(user.companyName) === companyName
+    )
+    .map((user) => user.id);
+
+  if (subAdminIds.length === 0) {
+    return [];
+  }
+
+  const projectsResult = await context.postgrest.client
+    .from("Project")
+    .select("id")
+    .in("userId", subAdminIds)
+    .eq("isDeleted", false);
+
+  if (projectsResult.error) {
+    throw projectsResult.error;
+  }
+
+  return projectsResult.data.map((project) => project.id);
+};
+
 export const findMany = async (userId: string, context: AppContext) => {
   if (context.authorization.type !== "user") {
     throw new AuthorizationError(
@@ -213,6 +275,16 @@ export const findMany = async (userId: string, context: AppContext) => {
     sharedAccess.data.map((entry) => [entry.projectId, entry.accessLevel])
   );
 
+  const implicitCompanyProjectIds = await getImplicitCompanyProjectIds(
+    userId,
+    context
+  );
+  const implicitVisibleProjectIds = implicitCompanyProjectIds.filter(
+    (projectId) =>
+      ownedProjectIds.has(projectId) === false &&
+      sharedProjectIds.includes(projectId) === false
+  );
+
   const sharedProjects =
     sharedProjectIds.length === 0
       ? []
@@ -239,6 +311,35 @@ export const findMany = async (userId: string, context: AppContext) => {
     throw sharedProjects.error;
   }
 
+  const implicitCompanyProjects =
+    implicitVisibleProjectIds.length === 0
+      ? []
+      : await queryProjectList(
+          (columns) =>
+            context.postgrest.client
+              .from("DashboardProject")
+              .select(columns)
+              .in("id", implicitVisibleProjectIds)
+              .eq("isDeleted", false)
+              .order("createdAt", { ascending: false })
+              .order("id", { ascending: false }),
+          (columns) =>
+            context.postgrest.client
+              .from("Project")
+              .select(columns)
+              .in("id", implicitVisibleProjectIds)
+              .eq("isDeleted", false)
+              .order("createdAt", { ascending: false })
+              .order("id", { ascending: false })
+        );
+
+  if (
+    Array.isArray(implicitCompanyProjects) === false &&
+    implicitCompanyProjects.error
+  ) {
+    throw implicitCompanyProjects.error;
+  }
+
   const mergedProjects = [
     ...ownedProjects.data.map((project) => ({
       ...project,
@@ -250,7 +351,14 @@ export const findMany = async (userId: string, context: AppContext) => {
           ...project,
           accessLevel: (sharedAccessByProjectId.get(project.id) ?? "view") as
             | "view"
-            | "edit",
+            | "edit"
+            | "admin",
+        }))),
+    ...(Array.isArray(implicitCompanyProjects)
+      ? []
+      : implicitCompanyProjects.data.map((project) => ({
+          ...project,
+          accessLevel: "view" as const,
         }))),
   ].sort((left, right) => {
     const dateCompare =
