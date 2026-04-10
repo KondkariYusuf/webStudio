@@ -689,6 +689,7 @@ export type Database = {
           passwordHash: string | null;
           projectsTags: Json;
           provider: string | null;
+          role: string;
           teamId: string | null;
           username: string | null;
         };
@@ -700,6 +701,7 @@ export type Database = {
           passwordHash?: string | null;
           projectsTags?: Json;
           provider?: string | null;
+          role?: string;
           teamId?: string | null;
           username?: string | null;
         };
@@ -711,6 +713,7 @@ export type Database = {
           passwordHash?: string | null;
           projectsTags?: Json;
           provider?: string | null;
+          role?: string;
           teamId?: string | null;
           username?: string | null;
         };
@@ -720,6 +723,55 @@ export type Database = {
             columns: ["teamId"];
             isOneToOne: false;
             referencedRelation: "Team";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      UserProjectAccess: {
+        Row: {
+          id: string;
+          userId: string;
+          projectId: string;
+          accessLevel: string;
+          grantedBy: string;
+          createdAt: string;
+        };
+        Insert: {
+          id?: string;
+          userId: string;
+          projectId: string;
+          accessLevel?: string;
+          grantedBy: string;
+          createdAt?: string;
+        };
+        Update: {
+          id?: string;
+          userId?: string;
+          projectId?: string;
+          accessLevel?: string;
+          grantedBy?: string;
+          createdAt?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "UserProjectAccess_userId_fkey";
+            columns: ["userId"];
+            isOneToOne: false;
+            referencedRelation: "User";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "UserProjectAccess_projectId_fkey";
+            columns: ["projectId"];
+            isOneToOne: false;
+            referencedRelation: "Project";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "UserProjectAccess_grantedBy_fkey";
+            columns: ["grantedBy"];
+            isOneToOne: false;
+            referencedRelation: "User";
             referencedColumns: ["id"];
           },
         ];

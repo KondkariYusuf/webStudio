@@ -50,6 +50,12 @@ const PublishedLink = ({
   );
 };
 
+type ProjectWithExtras = DashboardProject & {
+  domainsVirtual?: Array<{ domain: string; status: string; verified: boolean }>;
+  previewImageAsset?: { name: string };
+  accessLevel?: "own" | "view" | "edit";
+};
+
 type ProjectCardProps = {
   project: DashboardProject;
   userPlanFeatures: UserPlanFeatures;
@@ -58,7 +64,14 @@ type ProjectCardProps = {
 };
 
 export const ProjectCard = ({
-  project: {
+  project: baseProject,
+  userPlanFeatures,
+  publisherHost,
+  projectsTags,
+  ...props
+}: ProjectCardProps) => {
+  const project = baseProject as ProjectWithExtras;
+  const {
     id,
     title,
     domain,
@@ -68,12 +81,8 @@ export const ProjectCard = ({
     previewImageAsset,
     tags,
     domainsVirtual,
-  },
-  userPlanFeatures,
-  publisherHost,
-  projectsTags,
-  ...props
-}: ProjectCardProps) => {
+    accessLevel = "own",
+  } = project;
   // Determine which domain to display: custom domain if available, otherwise wstd subdomain
   const customDomain = domainsVirtual?.find(
     (d: { domain: string; status: string; verified: boolean }) =>
@@ -96,7 +105,7 @@ export const ProjectCard = ({
   useEffect(() => {
     const linkPath = builderUrl({ origin: window.origin, projectId: id });
 
-    const handleNavigate = (event: NavigateEvent) => {
+    const handleNavigate = (event: any) => {
       if (event.destination.url === linkPath) {
         setIsTransitioning(true);
       }
@@ -116,13 +125,35 @@ export const ProjectCard = ({
   const linkPath = builderUrl({ origin: window.origin, projectId: id });
 
   return (
-    <Card hidden={isHidden} {...props}>
+    <Card
+      hidden={isHidden}
+      css={{
+        transition: "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
+        border: "1px solid #E2E8F0",
+        borderRadius: "18px",
+        overflow: "hidden",
+        background: "#FFFFFF",
+        "&:hover": {
+          transform: "translateY(-8px)",
+          boxShadow: `
+            0 10px 15px -3px rgba(0, 0, 0, 0.05),
+            0 25px 40px -12px rgba(0, 0, 0, 0.08),
+            0 0 0 1px rgba(43, 0, 204, 0.12)
+          `,
+          borderColor: "rgba(43, 0, 204, 0.35)",
+        },
+      }}
+      {...props}
+    >
       <CardContent
         css={{
-          background: theme.colors.brandBackgroundProjectCardBack,
+          aspectRatio: "16/10",
+          background: "linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%)",
+          position: "relative",
+          overflow: "hidden",
           [`&:hover`]: {
             "--ws-project-card-prefetch-image-background": `url(${linkPath}cgi/empty.gif)`,
-          },
+          }
         }}
       >
         {/* This div with backgorundImage on card hover is used to prefetch DNS of the project domain on hover. */}
@@ -172,21 +203,34 @@ export const ProjectCard = ({
         )}
         {isTransitioning && <Spinner delay={0} />}
       </CardContent>
-      <CardFooter>
-        <Flex direction="column" justify="around" grow>
-          <Flex gap="1">
+      <CardFooter
+        css={{
+          padding: "16px",
+          gap: "12px",
+          background: "#FFFFFF",
+          borderTop: "1px solid #E2E8F0",
+        }}
+      >
+        <Flex direction="column" gap="1" grow overflow="hidden">
+          <Flex gap="2" align="center">
             <Text
               variant="titles"
               userSelect="text"
               truncate
-              css={{ textTransform: "none" }}
+              css={{
+                 textTransform: "none",
+                 color: "#0F172A",
+                 fontWeight: "600",
+                 fontSize: "14px",
+                 letterSpacing: "-0.01em"
+              }}
             >
               {title}
             </Text>
             <Tooltip
               variant="wrapped"
               content={
-                <Text variant="small">
+                <Text variant="small" css={{ color: "#64748B" }}>
                   Created: {formatDate(createdAt)}
                   {latestBuildVirtual?.updatedAt && (
                     <>
@@ -203,20 +247,22 @@ export const ProjectCard = ({
                 </Text>
               }
             >
-              <InfoCircleIcon
-                color={rawTheme.colors.foregroundSubtle}
-                tabIndex={-1}
-                className={infoIconStyle()}
-              />
+              <Box css={{ color: "#94A3B8", cursor: "help", opacity: 0.6 }}>
+                <InfoCircleIcon size={12} className={infoIconStyle()} />
+              </Box>
             </Tooltip>
           </Flex>
           {isPublished ? (
             <PublishedLink domain={displayDomain} tabIndex={-1} />
           ) : (
-            <Text color="subtle">Not published</Text>
+            <Text css={{ color: "#64748B", fontSize: "12px" }}>Not published</Text>
           )}
         </Flex>
-        <ProjectMenu projectId={id} onOpenChange={setOpenDialog} />
+        <ProjectMenu
+          projectId={id}
+          onOpenChange={setOpenDialog}
+          accessLevel={accessLevel}
+        />
       </CardFooter>
       <ProjectDialogs
         projectId={id}

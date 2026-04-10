@@ -15,11 +15,19 @@ import { builderUrl } from "~/shared/router-utils";
 type ProjectMenuProps = {
   projectId: string;
   onOpenChange: (dialog: DialogType) => void;
+  accessLevel?: "own" | "view" | "edit";
 };
 
-export const ProjectMenu = ({ projectId, onOpenChange }: ProjectMenuProps) => {
+export const ProjectMenu = ({
+  projectId,
+  onOpenChange,
+  accessLevel = "own",
+}: ProjectMenuProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const handleDuplicateProject = useDuplicateProject(projectId);
+  const canManageProject = accessLevel === "own" || accessLevel === "edit";
+  const canShareOrDelete = accessLevel === "own";
+  const canOpenSettings = accessLevel === "own";
 
   const handleOpenInSafeMode = () => {
     window.location.href = builderUrl({
@@ -44,19 +52,34 @@ export const ProjectMenu = ({ projectId, onOpenChange }: ProjectMenuProps) => {
         <DropdownMenuItem onSelect={handleDuplicateProject}>
           Duplicate
         </DropdownMenuItem>
-        <DropdownMenuItem onSelect={() => onOpenChange("rename")}>
+        <DropdownMenuItem
+          disabled={canManageProject === false}
+          onSelect={() => onOpenChange("rename")}
+        >
           Rename
         </DropdownMenuItem>
-        <DropdownMenuItem onSelect={() => onOpenChange("share")}>
+        <DropdownMenuItem
+          disabled={canShareOrDelete === false}
+          onSelect={() => onOpenChange("share")}
+        >
           Share
         </DropdownMenuItem>
-        <DropdownMenuItem onSelect={() => onOpenChange("delete")}>
+        <DropdownMenuItem
+          disabled={canShareOrDelete === false}
+          onSelect={() => onOpenChange("delete")}
+        >
           Delete
         </DropdownMenuItem>
-        <DropdownMenuItem onSelect={() => onOpenChange("tags")}>
+        <DropdownMenuItem
+          disabled={canManageProject === false}
+          onSelect={() => onOpenChange("tags")}
+        >
           Tags
         </DropdownMenuItem>
-        <DropdownMenuItem onSelect={() => onOpenChange("settings")}>
+        <DropdownMenuItem
+          disabled={canOpenSettings === false}
+          onSelect={() => onOpenChange("settings")}
+        >
           Settings
         </DropdownMenuItem>
         <DropdownMenuItem onSelect={handleOpenInSafeMode}>

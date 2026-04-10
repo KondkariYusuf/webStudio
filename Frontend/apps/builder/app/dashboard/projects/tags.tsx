@@ -60,12 +60,19 @@ const DeleteConfirmationDialog = ({
                 onClick={() => {
                   onConfirm();
                 }}
+                css={{
+                  borderRadius: "8px",
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  padding: "8px 16px",
+                  transition: "all 0.2s ease",
+                }}
               >
                 Delete
               </Button>
             </DialogClose>
-            <DialogClose>
-              <Button color="ghost">Cancel</Button>
+            <DialogClose asChild>
+              <Button color="ghost" css={{ borderRadius: "8px", "&:hover": { background: "#F1F5F9" } }}>Cancel</Button>
             </DialogClose>
           </Flex>
         </Flex>
@@ -252,8 +259,30 @@ const TagEdit = ({
           minLength={1}
         />
       </Grid>
-      <DialogActions>
-        <Button type="submit">
+      <DialogActions css={{ borderTop: "1px solid #E2E8F0", paddingTop: theme.spacing["4"], marginTop: theme.spacing["4"] }}>
+        <Button 
+          type="submit"
+          css={{
+            borderRadius: "8px",
+            background: "#2b00cc",
+            color: "#ffffff",
+            fontSize: "14px",
+            fontWeight: 600,
+            padding: "8px 16px",
+            border: "none",
+            boxShadow: "0 4px 10px rgba(43, 0, 204, 0.2)",
+            transition: "all 0.2s ease",
+            "&:hover": {
+              background: "#2200a3",
+              boxShadow: "0 6px 14px rgba(34, 0, 163, 0.3)",
+              color: "#FFFFFF",
+              transform: "translateY(-1px)",
+            },
+            "&:focus-visible": {
+              boxShadow: "0 0 0 2px #FFFFFF, 0 0 0 4px #2b00cc",
+            }
+          }}
+        >
           {isExisting ? "Update tag" : "Create tag"}
         </Button>
         <Button
@@ -261,6 +290,18 @@ const TagEdit = ({
           type="button"
           onClick={() => {
             onComplete();
+          }}
+          css={{
+            borderRadius: "8px",
+            color: "#64748B",
+            fontSize: "14px",
+            fontWeight: 500,
+            padding: "8px 16px",
+            transition: "all 0.2s ease",
+            "&:hover": {
+              background: "#F1F5F9",
+              color: "#0F172A",
+            }
           }}
         >
           Cancel

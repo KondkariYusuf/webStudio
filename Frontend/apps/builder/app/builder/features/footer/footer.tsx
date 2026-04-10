@@ -11,7 +11,8 @@ export const Footer = () => {
         gridArea: "footer",
         height: theme.spacing[11],
         background: theme.colors.backgroundTopbar,
-        color: theme.colors.foregroundContrastMain,
+        color: theme.colors.foregroundMain,
+        borderTop: `1px solid ${theme.colors.borderMain}`,
       }}
     >
       <Breadcrumbs />

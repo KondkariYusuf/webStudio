@@ -173,7 +173,7 @@ export const findMany = async (userId: string, context: AppContext) => {
     );
   }
 
-  const data = await queryProjectList(
+  const ownedProjects = await queryProjectList(
     (columns) =>
       context.postgrest.client
         .from("DashboardProject")
@@ -191,13 +191,80 @@ export const findMany = async (userId: string, context: AppContext) => {
         .order("createdAt", { ascending: false })
         .order("id", { ascending: false })
   );
-  if (data.error) {
-    throw data.error;
+  if (ownedProjects.error) {
+    throw ownedProjects.error;
   }
 
-  // Type assertion: These fields are never null in practice (come from Project table which has them as required)
+  const sharedAccess = await context.postgrest.client
+    .from("UserProjectAccess")
+    .select("projectId,accessLevel")
+    .eq("userId", userId);
+
+  if (sharedAccess.error) {
+    throw sharedAccess.error;
+  }
+
+  const ownedProjectIds = new Set(ownedProjects.data.map((project) => project.id));
+  const sharedProjectIds = sharedAccess.data
+    .map((entry) => entry.projectId)
+    .filter((projectId) => ownedProjectIds.has(projectId) === false);
+
+  const sharedAccessByProjectId = new Map(
+    sharedAccess.data.map((entry) => [entry.projectId, entry.accessLevel])
+  );
+
+  const sharedProjects =
+    sharedProjectIds.length === 0
+      ? []
+      : await queryProjectList(
+          (columns) =>
+            context.postgrest.client
+              .from("DashboardProject")
+              .select(columns)
+              .in("id", sharedProjectIds)
+              .eq("isDeleted", false)
+              .order("createdAt", { ascending: false })
+              .order("id", { ascending: false }),
+          (columns) =>
+            context.postgrest.client
+              .from("Project")
+              .select(columns)
+              .in("id", sharedProjectIds)
+              .eq("isDeleted", false)
+              .order("createdAt", { ascending: false })
+              .order("id", { ascending: false })
+        );
+
+  if (Array.isArray(sharedProjects) === false && sharedProjects.error) {
+    throw sharedProjects.error;
+  }
+
+  const mergedProjects = [
+    ...ownedProjects.data.map((project) => ({
+      ...project,
+      accessLevel: "own" as const,
+    })),
+    ...(Array.isArray(sharedProjects)
+      ? []
+      : sharedProjects.data.map((project) => ({
+          ...project,
+          accessLevel: (sharedAccessByProjectId.get(project.id) ?? "view") as
+            | "view"
+            | "edit",
+        }))),
+  ].sort((left, right) => {
+    const dateCompare =
+      new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime();
+
+    if (dateCompare !== 0) {
+      return dateCompare;
+    }
+
+    return right.id.localeCompare(left.id);
+  });
+
   return await fetchAndMapDomains(
-    data.data.map((project) => ({
+    mergedProjects.map((project) => ({
       ...project,
       previewImageAsset:
         "previewImageAsset" in project ? project.previewImageAsset : null,

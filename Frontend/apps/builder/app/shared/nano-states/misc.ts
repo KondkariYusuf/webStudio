@@ -351,9 +351,22 @@ export const $isContentModeAllowed = computed(
   }
 );
 
-export const $isDesignModeAllowed = computed([$authPermit], (authPermit) => {
-  return authPermit !== "edit";
-});
+export const $isDesignModeAllowed = computed(
+  [$authPermit, $authToken],
+  (authPermit, authToken) => {
+    if (authPermit === "view") {
+      return false;
+    }
+
+    // Token-based "edit" links are content-edit only, while authenticated shared users
+    // with "edit" access should be able to use design mode.
+    if (authPermit === "edit" && authToken !== undefined) {
+      return false;
+    }
+
+    return true;
+  }
+);
 
 let lastEditableBuilderMode: Exclude<BuilderMode, "preview"> | undefined =
   undefined;

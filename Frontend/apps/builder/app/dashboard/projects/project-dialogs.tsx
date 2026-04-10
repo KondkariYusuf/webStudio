@@ -98,16 +98,18 @@ const DialogContent = ({
         css={{
           px: theme.spacing["7"],
           paddingTop: theme.spacing["5"],
-          width,
+          width: width || "400px",
         }}
         gap="1"
       >
         {description && (
           <DialogDescription asChild>
-            <Text as="p">{description}</Text>
+            <Text as="p" css={{ marginBottom: theme.spacing["4"], color: "#64748B", fontSize: "14px", lineHeight: "1.5" }}>{description}</Text>
           </DialogDescription>
         )}
-        {typeof label === "string" ? <Label>{label}</Label> : label}
+        <Box css={{ marginBottom: theme.spacing["2"] }}>
+          {typeof label === "string" ? <Label css={{ fontWeight: 600, color: "#0F172A" }}>{label}</Label> : label}
+        </Box>
         <InputField
           placeholder={placeholder}
           name="title"
@@ -117,14 +119,28 @@ const DialogContent = ({
             onChange?.({ title: event.currentTarget.value });
           }}
         />
-        <Box css={{ minHeight: theme.spacing["10"] }}>
-          {errors && <Text color="destructive">{errors}</Text>}
+        <Box css={{ minHeight: theme.spacing["10"], paddingTop: theme.spacing["1"] }}>
+          {errors && <Text color="destructive" css={{ fontSize: "12px" }}>{errors}</Text>}
         </Box>
       </Flex>
-      <DialogActions>
+      <DialogActions css={{ borderTop: "1px solid #E2E8F0", paddingTop: theme.spacing["4"], marginTop: theme.spacing["4"] }}>
         {primaryButton}
-        <DialogClose>
-          <Button color="ghost">Cancel</Button>
+        <DialogClose asChild>
+          <Button 
+            color="ghost"
+            css={{
+              borderRadius: "8px",
+              color: "#64748B",
+              fontSize: "14px",
+              fontWeight: 500,
+              padding: "8px 16px",
+              transition: "all 0.2s ease",
+              "&:hover": {
+                background: "#F1F5F9",
+                color: "#0F172A",
+              }
+            }}
+          >Cancel</Button>
         </DialogClose>
       </DialogActions>
     </form>
@@ -176,7 +192,38 @@ export const CreateProject = ({
   return (
     <Dialog
       title="New Project"
-      trigger={<Button prefix={<PlusIcon size={12} />}>{buttonText}</Button>}
+      trigger={
+        <Button 
+          prefix={<PlusIcon size={14} />}
+          css={{
+            height: "44px",
+            paddingInline: theme.spacing[8],
+            backgroundColor: "#2b00cc",
+            color: "white",
+            borderRadius: "12px",
+            boxShadow: "0 4px 12px rgba(43, 0, 204, 0.2)",
+            border: "none",
+            fontWeight: "600",
+            fontSize: "14px",
+            transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+            "&:hover": {
+              backgroundColor: "#2200a3",
+              color: "#FFFFFF",
+              transform: "translateY(-1px)",
+              boxShadow: "0 6px 14px rgba(34, 0, 163, 0.3)",
+            },
+            "&:active": {
+              transform: "translateY(0)",
+            },
+            "&:focus-visible": {
+              boxShadow: "0 0 0 2px #FFFFFF, 0 0 0 4px #2b00cc",
+              outline: "none",
+            }
+          }}
+        >
+          {buttonText}
+        </Button>
+      }
       onOpenChange={handleOpenChange}
     >
       <DialogContent
@@ -188,6 +235,26 @@ export const CreateProject = ({
           <Button
             state={state === "idle" ? undefined : "pending"}
             type="submit"
+            css={{
+              borderRadius: "8px",
+              background: "#2b00cc",
+              color: "#ffffff",
+              fontSize: "14px",
+              fontWeight: 600,
+              padding: "8px 16px",
+              border: "none",
+              boxShadow: "0 4px 10px rgba(43, 0, 204, 0.2)",
+              transition: "all 0.2s ease",
+              "&:hover": {
+                background: "#2200a3",
+                boxShadow: "0 6px 14px rgba(34, 0, 163, 0.3)",
+                color: "#FFFFFF",
+                transform: "translateY(-1px)",
+              },
+              "&:focus-visible": {
+                boxShadow: "0 0 0 2px #FFFFFF, 0 0 0 4px #2b00cc",
+              }
+            }}
           >
             Create Project
           </Button>
@@ -256,6 +323,26 @@ export const RenameProjectDialog = ({
           <Button
             type="submit"
             state={state === "idle" ? undefined : "pending"}
+            css={{
+              borderRadius: "8px",
+              background: "#2b00cc",
+              color: "#ffffff",
+              fontSize: "14px",
+              fontWeight: 600,
+              padding: "8px 16px",
+              border: "none",
+              boxShadow: "0 4px 10px rgba(43, 0, 204, 0.2)",
+              transition: "all 0.2s ease",
+              "&:hover": {
+                background: "#2200a3",
+                boxShadow: "0 6px 14px rgba(34, 0, 163, 0.3)",
+                color: "#FFFFFF",
+                transform: "translateY(-1px)",
+              },
+              "&:focus-visible": {
+                boxShadow: "0 0 0 2px #FFFFFF, 0 0 0 4px #2b00cc",
+              }
+            }}
           >
             Rename Project
           </Button>
@@ -364,6 +451,13 @@ export const DeleteProjectDialog = ({
             color="destructive"
             disabled={isMatch === false}
             state={state === "idle" ? undefined : "pending"}
+            css={{
+              borderRadius: "8px",
+              fontSize: "14px",
+              fontWeight: 600,
+              padding: "8px 16px",
+              transition: "all 0.2s ease",
+            }}
           >
             Delete Forever
           </Button>

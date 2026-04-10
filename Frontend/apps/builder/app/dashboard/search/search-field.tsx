@@ -17,6 +17,31 @@ export const Search = () => {
 
   return (
     <SearchField
+      css={{
+        background: "#F1F5F9",
+        border: "1px solid #E2E8F0",
+        borderRadius: "8px",
+        $$foregroundSubtle: "#64748B",
+        "& *": {
+          "--colors-foregroundSubtle": "#64748B"
+        },
+        "&:hover": {
+          borderColor: "#CBD5E1"
+        },
+        "&:focus-within": {
+          borderColor: "#2b00cc"
+        },
+        "& [data-input-field-input]": {
+          color: "#0F172A",
+          "&::placeholder": {
+            color: "#94A3B8",
+            opacity: 1
+          }
+        },
+        "& svg": {
+          color: "#64748B !important"
+        }
+      }}
       value={searchParams.get("q") ?? undefined}
       onChange={(event) => {
         const value = event.currentTarget.value.trim();
@@ -41,7 +66,7 @@ export const Search = () => {
       }}
       onAbort={handleAbortSearch}
       autoFocus
-      placeholder="Search for anything"
+      placeholder="Press Cmd+K to search"
     />
   );
 };

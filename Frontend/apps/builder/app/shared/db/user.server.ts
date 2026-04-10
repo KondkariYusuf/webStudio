@@ -18,12 +18,14 @@ export type User = Omit<
   "projectsTags"
 > & {
   projectsTags: Array<ProjectTag>;
+  role: string;
 };
 
 const formatUser = (user: Database["public"]["Tables"]["User"]["Row"]) => {
   return {
     ...user,
     projectsTags: (user.projectsTags || []) as User["projectsTags"],
+    role: user.role ?? "viewer",
   };
 };
 
@@ -249,4 +251,119 @@ export const updateUserProjectsTags = async (
     throw result.error;
   }
   return result.data.projectsTags as ProjectTag[];
+};
+
+// ===================== RBAC FUNCTIONS =====================
+
+export type UserRole = "admin" | "editor" | "viewer";
+
+export class AdminUserManagementError extends Error {
+  status: number;
+
+  constructor(message: string, status = 400) {
+    super(message);
+    this.name = "AdminUserManagementError";
+    this.status = status;
+  }
+}
+
+export const getAllUsers = async (context: AppContext) => {
+  const result = await context.postgrest.client
+    .from("User")
+    .select("id,email,username,image,role,createdAt")
+    .order("createdAt", { ascending: true });
+
+  if (result.error) {
+    console.error(result.error);
+    throw new Error("Failed to fetch users");
+  }
+
+  return result.data;
+};
+
+export const updateUserRole = async (
+  context: AppContext,
+  { userId, role }: { userId: string; role: UserRole }
+) => {
+  const result = await context.postgrest.client
+    .from("User")
+    .update({ role })
+    .eq("id", userId);
+
+  if (result.error) {
+    console.error(result.error);
+    throw new Error("Failed to update user role");
+  }
+
+  return { success: true };
+};
+
+export const deleteUserById = async (
+  context: AppContext,
+  userId: string
+) => {
+  const result = await context.postgrest.client
+    .from("User")
+    .delete()
+    .eq("id", userId);
+
+  if (result.error) {
+    console.error(result.error);
+    throw new Error("Failed to delete user");
+  }
+
+  return { success: true };
+};
+
+export const createUserByAdmin = async (
+  context: AppContext,
+  { email, role, password }: { email: string; role: UserRole; password: string }
+) => {
+  const parsed = emailPasswordSchema.safeParse({
+    email,
+    password,
+  });
+
+  if (parsed.success === false) {
+    throw new AdminUserManagementError("Invalid email or password", 400);
+  }
+
+  const normalizedEmail = normalizeEmail(parsed.data.email);
+  const id = crypto.randomUUID();
+  const passwordHash = hashPassword(parsed.data.password);
+
+  const existingUser = await context.postgrest.client
+    .from("User")
+    .select("id")
+    .eq("email", normalizedEmail)
+    .maybeSingle();
+
+  if (existingUser.error) {
+    console.error(existingUser.error);
+    throw new Error("Failed to create user");
+  }
+
+  if (existingUser.data?.id) {
+    throw new AdminUserManagementError("User with this email already exists", 409);
+  }
+
+  const result = await context.postgrest.client.from("User").insert({
+    id,
+    email: normalizedEmail,
+    username: normalizedEmail,
+    image: "",
+    provider: "password",
+    passwordHash,
+    role,
+  });
+
+  if (result.error) {
+    if (result.error.code === "23505") {
+      throw new AdminUserManagementError("User with this email already exists", 409);
+    }
+    console.error(result.error);
+    throw new Error("Failed to create user");
+  }
+
+  return { id, email: normalizedEmail, role };
 };

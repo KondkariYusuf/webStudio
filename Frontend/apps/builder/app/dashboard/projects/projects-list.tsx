@@ -84,6 +84,7 @@ export const ProjectsListItem = ({
     latestBuildVirtual,
     tags,
     domainsVirtual,
+    accessLevel = "own",
   },
   userPlanFeatures,
   publisherHost,
@@ -156,7 +157,11 @@ export const ProjectsListItem = ({
           </div>
 
           <div role="cell">
-            <ProjectMenu projectId={id} onOpenChange={setOpenDialog} />
+            <ProjectMenu
+              projectId={id}
+              onOpenChange={setOpenDialog}
+              accessLevel={accessLevel}
+            />
           </div>
         </div>
       </ListItem>

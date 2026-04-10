@@ -13,13 +13,16 @@
       "root": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/rest.buildId.$projectId": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/_ui.dashboard.templates": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/auth.password-register": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/auth.github_.callback": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/auth.google_.callback": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/rest.resources-loader": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/rest.data.$projectId": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/_ui.dashboard.search": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/_ui.dashboard._index": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/auth.password-login": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/rest.build.$buildId": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/_ui.register._index": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/oauth.ws.authorize": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/rest.assets_.$name": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/auth.ws_.callback": "nodejs-eyJydW50aW1lIjoibm9kZWpzIn0",
@@ -68,6 +71,13 @@
         "parentId": "routes/_ui.dashboard",
         "config": {}
       },
+      "routes/auth.password-register": {
+        "file": "app/routes/auth.password-register.tsx",
+        "id": "routes/auth.password-register",
+        "path": "auth/password-register",
+        "parentId": "root",
+        "config": {}
+      },
       "routes/auth.github_.callback": {
         "file": "app/routes/auth.github_.callback.tsx",
         "id": "routes/auth.github_.callback",
@@ -110,11 +120,26 @@
         "parentId": "routes/_ui.dashboard",
         "config": {}
       },
+      "routes/auth.password-login": {
+        "file": "app/routes/auth.password-login.tsx",
+        "id": "routes/auth.password-login",
+        "path": "auth/password-login",
+        "parentId": "root",
+        "config": {}
+      },
       "routes/rest.build.$buildId": {
         "file": "app/routes/rest.build.$buildId.tsx",
         "id": "routes/rest.build.$buildId",
         "path": "rest/build/:buildId",
         "parentId": "root",
+        "config": {}
+      },
+      "routes/_ui.register._index": {
+        "file": "app/routes/_ui.register._index.tsx",
+        "id": "routes/_ui.register._index",
+        "path": "register",
+        "index": true,
+        "parentId": "routes/_ui",
         "config": {}
       },
       "routes/oauth.ws.authorize": {
@@ -308,9 +333,9 @@
     }
   },
   "remixConfig": {
-    "appDirectory": "C:\\Users\\kondk\\OneDrive\\Desktop\\Projects\\BZTech\\webStudio\\webstudio\\Frontend\\apps\\builder\\app",
+    "appDirectory": "E:\\BZTECH\\webstudio2.0\\webStudio\\Frontend\\apps\\builder\\app",
     "basename": "/",
-    "buildDirectory": "C:\\Users\\kondk\\OneDrive\\Desktop\\Projects\\BZTech\\webStudio\\webstudio\\Frontend\\apps\\builder\\build",
+    "buildDirectory": "E:\\BZTECH\\webstudio2.0\\webStudio\\Frontend\\apps\\builder\\build",
     "future": {
       "v3_fetcherPersist": false,
       "v3_relativeSplatPath": false,
@@ -339,6 +364,12 @@
         "id": "routes/_ui.dashboard.templates",
         "path": "templates",
         "parentId": "routes/_ui.dashboard"
+      },
+      "routes/auth.password-register": {
+        "file": "routes/auth.password-register.tsx",
+        "id": "routes/auth.password-register",
+        "path": "auth/password-register",
+        "parentId": "root"
       },
       "routes/auth.github_.callback": {
         "file": "routes/auth.github_.callback.tsx",
@@ -376,11 +407,24 @@
         "index": true,
         "parentId": "routes/_ui.dashboard"
       },
+      "routes/auth.password-login": {
+        "file": "routes/auth.password-login.tsx",
+        "id": "routes/auth.password-login",
+        "path": "auth/password-login",
+        "parentId": "root"
+      },
       "routes/rest.build.$buildId": {
         "file": "routes/rest.build.$buildId.tsx",
         "id": "routes/rest.build.$buildId",
         "path": "rest/build/:buildId",
         "parentId": "root"
+      },
+      "routes/_ui.register._index": {
+        "file": "routes/_ui.register._index.tsx",
+        "id": "routes/_ui.register._index",
+        "path": "register",
+        "index": true,
+        "parentId": "routes/_ui"
       },
       "routes/oauth.ws.authorize": {
         "file": "routes/oauth.ws.authorize.tsx",

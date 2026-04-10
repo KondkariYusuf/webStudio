@@ -22,8 +22,18 @@ const cardStyle = css({
   alignItems: "center",
   flexShrink: 0,
   outline: "none",
+  background: "#FFFFFF",
+  borderRadius: "12px",
+  boxShadow: "0 1px 3px rgb(0 0 0 / 0.06), 0 1px 2px rgb(0 0 0 / 0.04)",
+  border: "1px solid #E2E8F0",
+  transition: "all 0.2s ease-in-out",
+  "&:hover": {
+    transform: "translateY(-4px)",
+    boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.05)",
+  },
   "&:focus-within, &[aria-selected=true]": {
-    [borderColorVar]: theme.colors.borderFocus,
+    [borderColorVar]: "#2b00cc",
+    boxShadow: "0 0 0 2px #FFFFFF, 0 0 0 4px #2b00cc",
   },
 });
 
@@ -44,13 +54,13 @@ export const CardContent = styled(Grid, {
   overflow: "hidden",
   width: "100%",
   aspectRatio: "1.91/1",
-  borderRadius: theme.borderRadius[5],
+  borderTopLeftRadius: "11px",
+  borderTopRightRadius: "11px",
   "&::after": {
     content: '""',
     position: "absolute",
     inset: 0,
-    border: `1px solid var(${borderColorVar}, transparent)`,
-    borderRadius: theme.borderRadius[5],
+    borderBottom: "1px solid #E2E8F0",
     pointerEvents: "none",
   },
 });
@@ -60,7 +70,10 @@ export const CardFooter = styled(Flex, {
   flexShrink: 0,
   alignSelf: "stretch",
   flexGap: theme.spacing[3],
-  background: theme.colors.brandBackgroundProjectCardTextArea,
-  height: theme.spacing[17],
-  paddingBlock: theme.panel.paddingBlock,
+  background: "#FFFFFF",
+  borderBottomLeftRadius: "11px",
+  borderBottomRightRadius: "11px",
+  height: theme.spacing[20],
+  paddingBlock: "16px",
+  paddingInline: "20px",
 });

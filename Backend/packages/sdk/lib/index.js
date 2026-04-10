@@ -1807,6 +1807,7 @@ var portalComponent = "Slot";
 var collectionComponent = "ws:collection";
 var collectionMeta = {
   label: "Collection",
+  category: "data",
   icon: ListViewIcon,
   contentModel: {
     category: "instance",
