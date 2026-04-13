@@ -8,9 +8,9 @@ import {
   Text,
   theme,
 } from "@webstudio-is/design-system";
-import { WebstudioIcon } from "@webstudio-is/icons";
 import { Link, useSearchParams } from "@remix-run/react";
 import { authPath, loginPath, registerPath } from "~/shared/router-utils";
+import { phoneNumberPattern } from "~/shared/validation/phone";
 
 const globalStyles = globalCss({
   body: {
@@ -33,6 +33,15 @@ export const Login = ({
 }: LoginProps) => {
   const [searchParams] = useSearchParams();
   const returnTo = searchParams.get("returnTo") ?? undefined;
+  const monochrome = {
+    pageBg: "#ffffff",
+    cardBg: "#ffffff",
+    cardBorder: "#000000",
+    primary: "#000000",
+    primaryHover: "#111111",
+    onPrimary: "#ffffff",
+    link: "#000000",
+  };
 
   globalStyles();
   return (
@@ -41,7 +50,7 @@ export const Login = ({
       justify="center"
       css={{
         height: "100vh",
-        background: theme.colors.backgroundWorkspace,
+        background: monochrome.pageBg,
       }}
     >
       <Flex
@@ -54,28 +63,28 @@ export const Login = ({
           padding: theme.spacing[17],
           borderRadius: theme.spacing[5],
           [`@media (min-width: ${rawTheme.spacing[35]})`]: {
-            backgroundColor: theme.colors.backgroundPanel,
+            backgroundColor: monochrome.cardBg,
+            border: `1px solid ${monochrome.cardBorder}`,
             boxShadow: `0 4px 20px rgba(0, 0, 0, 0.05)`,
           },
         }}
       >
-        <div
-          style={{
+        <Flex
+          align="center"
+          justify="center"
+          css={{
             width: 48,
             height: 48,
-            background: theme.colors.backgroundTopbar,
+            background: monochrome.primary,
             borderRadius: "12px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: theme.colors.backgroundPanel,
+            color: monochrome.onPrimary,
             fontWeight: "bold",
             fontSize: "24px",
             boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
           }}
         >
           W
-        </div>
+        </Flex>
         <Text variant="brandSectionTitle" as="h1" align="center">
           {mode === "register" ? "Create your account" : "Welcome to Webstudio"}
         </Text>
@@ -88,6 +97,32 @@ export const Login = ({
                 action={authPath({ provider: "password-register" })}
               >
                 <Flex direction="column" gap="2">
+                  <InputField
+                    name="fullName"
+                    type="text"
+                    autoComplete="name"
+                    required
+                    maxLength={100}
+                    placeholder="Full Name"
+                  />
+                  <InputField
+                    name="companyName"
+                    type="text"
+                    autoComplete="organization"
+                    required
+                    maxLength={150}
+                    placeholder="Company Name"
+                  />
+                  <InputField
+                    name="phone"
+                    type="tel"
+                    autoComplete="tel"
+                    inputMode="tel"
+                    required
+                    pattern={phoneNumberPattern}
+                    placeholder="Phone (+1234567890)"
+                    title="Phone number must be a valid international number"
+                  />
                   <InputField
                     name="email"
                     type="email"
@@ -106,15 +141,15 @@ export const Login = ({
                   />
                   <Button
                     type="submit"
-                    css={{ 
+                    css={{
                       height: theme.spacing[15],
-                      backgroundColor: theme.colors.backgroundTopbar,
-                      color: theme.colors.backgroundPanel,
+                      backgroundColor: monochrome.primary,
+                      color: monochrome.onPrimary,
                       border: "none",
                       boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
                       "&:hover": {
-                        backgroundColor: theme.colors.backgroundTopbarHover,
-                      }
+                        backgroundColor: monochrome.primaryHover,
+                      },
                     }}
                   >
                     Create Account
@@ -145,15 +180,15 @@ export const Login = ({
                   />
                   <Button
                     type="submit"
-                    css={{ 
+                    css={{
                       height: theme.spacing[15],
-                      backgroundColor: theme.colors.backgroundTopbar,
-                      color: theme.colors.backgroundPanel,
+                      backgroundColor: monochrome.primary,
+                      color: monochrome.onPrimary,
                       border: "none",
                       boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
                       "&:hover": {
-                        backgroundColor: theme.colors.backgroundTopbarHover,
-                      }
+                        backgroundColor: monochrome.primaryHover,
+                      },
                     }}
                   >
                     Log in with Email
@@ -162,16 +197,19 @@ export const Login = ({
               </form>
             )}
 
-            <Text align="center" css={{ 
-              "& a": { 
-                color: theme.colors.backgroundTopbar, 
-                textDecoration: "none",
-                borderBottom: `1px solid ${theme.colors.backgroundTopbar}`,
-                fontWeight: 500, 
-                transition: "all 0.2s ease",
-                "&:hover": { color: "#000000", borderBottomColor: "#000000" } 
-              } 
-            }}>
+            <Text
+              align="center"
+              css={{
+                "& a": {
+                  color: monochrome.link,
+                  textDecoration: "none",
+                  borderBottom: `1px solid ${monochrome.link}`,
+                  fontWeight: 500,
+                  transition: "all 0.2s ease",
+                  "&:hover": { color: monochrome.link, borderBottomColor: monochrome.link },
+                },
+              }}
+            >
               {mode === "register" ? (
                 <Link to={loginPath({ returnTo })}>Already have an account? Log in</Link>
               ) : (
