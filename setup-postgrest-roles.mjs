@@ -1,8 +1,15 @@
 import { PrismaClient } from './Backend/packages/prisma-client/src/__generated__/index.js';
 
-// Use the postgres superuser
-process.env.DATABASE_URL = 'postgresql://postgres:yusuf@localhost:5432/webstudio';
-process.env.DIRECT_URL = process.env.DATABASE_URL;
+const directUrl = process.env.DIRECT_URL ?? process.env.DATABASE_URL;
+
+if (directUrl == null || directUrl.trim() === '') {
+  throw new Error('DIRECT_URL or DATABASE_URL must be set in root .env');
+}
+
+process.env.DATABASE_URL = directUrl;
+process.env.DIRECT_URL = directUrl;
+
+const postgrestPassword = process.env.PGRST_DB_PASSWORD ?? 'postgrest_password';
 
 const prisma = new PrismaClient();
 
@@ -10,7 +17,7 @@ const statements = [
   `DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'anon') THEN CREATE ROLE anon NOLOGIN; END IF; END $$`,
   `DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'authenticated') THEN CREATE ROLE authenticated NOLOGIN; END IF; END $$`,
   `DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'service_role') THEN CREATE ROLE service_role NOLOGIN; END IF; END $$`,
-  `DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'authenticator') THEN CREATE ROLE authenticator NOINHERIT LOGIN PASSWORD 'postgrest_password'; END IF; END $$`,
+  `DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'authenticator') THEN CREATE ROLE authenticator NOINHERIT LOGIN PASSWORD '${postgrestPassword}'; ELSE ALTER ROLE authenticator WITH PASSWORD '${postgrestPassword}'; END IF; END $$`,
   `GRANT anon TO authenticator`,
   `GRANT authenticated TO authenticator`,
   `GRANT service_role TO authenticator`,

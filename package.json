@@ -11,12 +11,15 @@
   "scripts": {
     "build": "npm run build --workspaces --if-present --include-workspace-root=false",
     "dts": "npm run dts --workspaces --if-present --include-workspace-root=false",
-    "dev": "npm run demo:seed -w @webstudio-is/builder && npm run dev -w @webstudio-is/builder",
+    "dev": "node --env-file=.env ./scripts/dev.mjs",
+    "dev:builder": "npm run dev -w @webstudio-is/builder",
+    "dev:postgrest": "node --env-file=.env ./scripts/run-postgrest.mjs",
     "lint": "eslint \"**/*.{ts,tsx}\" --max-warnings 0",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "storybook:dev": "storybook dev -p 6006",
     "storybook:build": "storybook build",
-    "migrations": "npm run generate -w @webstudio-is/prisma-client && npm run migrations -w @webstudio-is/prisma-client -- migrate --dev --cwd ../../../Frontend/apps/builder",
+    "postgrest:roles": "node --env-file=.env ./setup-postgrest-roles.mjs",
+    "migrations": "npm run generate -w @webstudio-is/prisma-client && npm run migrations -w @webstudio-is/prisma-client -- migrate --dev --cwd ../../../ && npm run postgrest:roles",
     "build-figma-tokens": "npm run build-figma-tokens -w @webstudio-is/design-system",
     "postinstall": "patch-package"
   },
