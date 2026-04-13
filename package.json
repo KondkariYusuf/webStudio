@@ -11,14 +11,14 @@
   "scripts": {
     "build": "npm run build --workspaces --if-present --include-workspace-root=false",
     "dts": "npm run dts --workspaces --if-present --include-workspace-root=false",
-    "dev": "node --env-file=.env ./scripts/dev.mjs",
+    "dev": "concurrently \"npm run dev:postgrest\" \"npm run dev:builder\" -n pg,builder -c magenta,blue",
     "dev:builder": "npm run dev -w @webstudio-is/builder",
-    "dev:postgrest": "node --env-file=.env ./scripts/run-postgrest.mjs",
+    "dev:postgrest": "dotenv -e .env -- postgrest.exe postgrest.conf",
     "lint": "eslint \"**/*.{ts,tsx}\" --max-warnings 0",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "storybook:dev": "storybook dev -p 6006",
     "storybook:build": "storybook build",
-    "postgrest:roles": "node --env-file=.env ./setup-postgrest-roles.mjs",
+    "postgrest:roles": "npm run build -w @webstudio-is/postgrest && node --env-file=.env ./Backend/packages/postgrest/dist/index.server.js",
     "migrations": "npm run generate -w @webstudio-is/prisma-client && npm run migrations -w @webstudio-is/prisma-client -- migrate --dev --cwd ../../../ && npm run postgrest:roles",
     "build-figma-tokens": "npm run build-figma-tokens -w @webstudio-is/design-system",
     "postinstall": "patch-package"
@@ -38,6 +38,8 @@
   },
   "devDependencies": {
     "@prisma/client": "^5.12.1",
+    "concurrently": "^9.2.1",
+    "dotenv-cli": "^11.0.0",
     "prisma": "^5.12.1",
     "tsx": "^4.21.0"
   }
