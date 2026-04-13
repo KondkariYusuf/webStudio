@@ -1,2 +1,0 @@
-﻿D:\BZTECH\webStudio\Backend\packages\design-system
-D:\BZTECH\webStudio\node_modules\@webstudio-is\design-system

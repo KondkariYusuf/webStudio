@@ -16,3 +16,13 @@ coverage/
 Thumbs.db
 .codex-dev.out
 .codex-dev.err
+
+# Sensitive / generated
+.env
+jwt-token.txt
+
+# Local tool caches
+.local-tools/
+
+# Scratch / debug
+scratch/
